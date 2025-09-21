@@ -1,12 +1,24 @@
 print([[
-
-███████╗ ██████╗ ██████╗ ██╗███╗   ██╗    ███████╗███████╗██████╗ ██╗   ██╗██╗ ██████╗███████╗███████╗
-██╔════╝██╔═══██╗██╔══██╗██║████╗  ██║    ██╔════╝██╔════╝██╔══██╗██║   ██║██║██╔════╝██╔════╝██╔════╝
-███████╗██║   ██║██████╔╝██║██╔██╗ ██║    ███████╗█████╗  ██████╔╝██║   ██║██║██║     █████╗  ███████╗
-╚════██║██║   ██║██╔══██╗██║██║╚██╗██║    ╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██║██║     ██╔══╝  ╚════██║
-███████║╚██████╔╝██║  ██║██║██║ ╚████║    ███████║███████╗██║  ██║ ╚████╔╝ ██║╚██████╗███████╗███████║
-╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝    ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚═╝ ╚═════╝╚══════╝╚══════╝
-                                                                                                      
+	
+ .--..--..--..--..--..--..--..--..--..--. 
+/ .. \.. \.. \.. \.. \.. \.. \.. \.. \.. \
+\ \/\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ \/ /
+ \/ /`--'`--'`--'`--'`--'`--'`--'`--'\/ / 
+ / /\                                / /\ 
+/ /\ \   ____             _         / /\ \
+\ \/ /  / ___|  ___  _ __(_)_ __    \ \/ /
+ \/ /   \___ \ / _ \| '__| | '_ \    \/ / 
+ / /\    ___) | (_) | |  | | | | |   / /\ 
+/ /\ \  |____/ \___/|_|  |_|_| |_|  / /\ \
+\ \/ /                              \ \/ /
+ \/ /                                \/ / 
+ / /\.--..--..--..--..--..--..--..--./ /\ 
+/ /\ \.. \.. \.. \.. \.. \.. \.. \.. \/\ \
+\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `' /
+ `--'`--'`--'`--'`--'`--'`--'`--'`--'`--' 
+       Invented by SorinServices
+	    MainCredits to Luna UI
+	
 ]])
                                                                                                                                                    
 --[[                                                                                                                                                   
@@ -2257,11 +2269,11 @@ end
 function Luna:CreateWindow(WindowSettings)
 
 	WindowSettings = Kwargify({
-		Name = "Luna UI Example Window",
-		Subtitle = "",
-		LogoID = "6031097225",
+		Name = "SorinHub UI",
+		Subtitle = "Credits NebulaSoftworks",
+		LogoID = "77656423525793",
 		LoadingEnabled = true,
-		LoadingTitle = "Luna Interface Suite",
+		LoadingTitle = "SorinServices Scripthub",
 		LoadingSubtitle = "by Nebula Softworks",
 
 		ConfigSettings = {},
@@ -2272,7 +2284,7 @@ function Luna:CreateWindow(WindowSettings)
 
 	WindowSettings.ConfigSettings = Kwargify({
 		RootFolder = nil,
-		ConfigFolder = "Big Hub"
+		ConfigFolder = "SorinServiceConfig"
 	}, WindowSettings.ConfigSettings or {})
 
 	WindowSettings.KeySettings = Kwargify({
@@ -2313,7 +2325,7 @@ function Luna:CreateWindow(WindowSettings)
 
 	LoadingFrame.Frame.Frame.Title.Text = WindowSettings.LoadingTitle
 	LoadingFrame.Frame.Frame.Subtitle.Text = WindowSettings.LoadingSubtitle
-	LoadingFrame.Version.Text = LoadingFrame.Frame.Frame.Title.Text == "Luna Interface Suite" and Release or "Luna UI"
+	LoadingFrame.Version.Text = LoadingFrame.Frame.Frame.Title.Text == "Sorin Interface Suite" and Release or "SorinService using Luna UI. Props to them :)"
 
 	Navigation.Player.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
 	Navigation.Player.Namez.Text = Players.LocalPlayer.DisplayName
@@ -2589,7 +2601,7 @@ function Luna:CreateWindow(WindowSettings)
 				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Supports This Script."
 				break
 			else
-				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Isn't Officialy Supported By This Script."
+				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Isn't fully Supported by this Script."
 				break
 			end
 		end
@@ -2973,7 +2985,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				ParagraphSettings = Kwargify({
 					Title = "Paragraph",
-					Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus venenatis lacus sed tempus eleifend. Mauris interdum bibendum felis, in tempor augue egestas vel. Praesent tristique consectetur ex, eu pretium sem placerat non. Vestibulum a nisi sit amet augue facilisis consectetur sit amet et nunc. Integer fermentum ornare cursus. Pellentesque sed ultricies metus, ut egestas metus. Vivamus auctor erat ac sapien vulputate, nec ultricies sem tempor. Quisque leo lorem, faucibus nec pulvinar nec, congue eu velit. Duis sodales massa efficitur imperdiet ultrices. Donec eros ipsum, ornare pharetra purus aliquam, tincidunt elementum nisi. Ut mi tortor, feugiat eget nunc vitae, facilisis interdum dui. Vivamus ullamcorper nunc dui, a dapibus nisi pretium ac. Integer eleifend placerat nibh, maximus malesuada tellus. Cras in justo in ligula scelerisque suscipit vel vitae quam."
+					Text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
 				}, ParagraphSettings or {})
 
 				local ParagraphV = {
