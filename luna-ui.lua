@@ -6750,38 +6750,40 @@ function Luna:CreateWindow(WindowSettings)
 end
 
 function Luna:Destroy()
-	Main.Visible = false
-	for _, Notification in ipairs(Notifications:GetChildren()) do
-		if Notification.ClassName == "Frame" then
-			Notification.Visible = false
-			Notification:Destroy()
-		end
-	end
-	LunaUI:Destroy()
+    Main.Visible = false
+    for _, Notification in ipairs(Notifications:GetChildren()) do
+        if Notification.ClassName == "Frame" then
+            Notification.Visible = false
+            Notification:Destroy()
+        end
+    end
+    LunaUI:Destroy()
 end
 
+-- Optionales Studio-Demo (nur im Studio)
 if isStudio then
-	local Window = Luna:CreateWindow({
-		Name = "Nebula Client - Luna Hub | Blade Ball",
-		Subtitle = "by Nebula Softworks",
-		LogoID = "123795201100198",
-		LoadingEnabled = true,
-		LoadingTitle = "Nebula Client (Luna Hub)",
-		LoadingSubtitle = "Loading script for Blade Ball",
-		KeySystem = true,
-		KeySettings = {
-			Title = "Nebula Client | Key System",
-			Subtitle = "Blade Ball",
-			Note = "Please Enter Your Key To Use Nebula Client",
-			FileName = "Key", -- the name of the key file. this will be saved in ur RootFolder. However, if you don't have one, it'll save in ur config folder instead
-			SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-			Key = {"Example Key"}, -- List of keys that will be accepted by the system, please use a system like Pelican or Luarmor that provide key strings based on your HWID since putting a simple string is very easy to bypass
-			SecondAction = {
-				Enabled = true,
-				Type = "Link", -- Link/Discord
-				Parameter = "" -- for discord, add the invite link like home tab. for link, type the link of ur key sys
-			}
-		}
-	})
-	
+    local Window = Luna:CreateWindow({
+        Name = "Nebula Client - Luna Hub | Blade Ball",
+        Subtitle = "by Nebula Softworks",
+        LogoID = "123795201100198",
+        LoadingEnabled = true,
+        LoadingTitle = "Nebula Client (Luna Hub)",
+        LoadingSubtitle = "Loading script for Blade Ball",
+        KeySystem = true,
+        KeySettings = {
+            Title = "Nebula Client | Key System",
+            Subtitle = "Blade Ball",
+            Note = "Please Enter Your Key To Use Nebula Client",
+            FileName = "Key",
+            SaveKey = true,
+            Key = {"Example Key"},
+            SecondAction = {
+                Enabled = true,
+                Type = "Link",
+                Parameter = ""
+            }
+        }
+    })
+end
+
 return Luna
