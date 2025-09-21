@@ -1,14 +1,12 @@
 print([[
-                                                                                                                                                   
- ad88888ba                            88                   ad88888ba                                        88                                     
-d8"     "8b                           ""                  d8"     "8b                                       ""                                     
-Y8,                                                       Y8,                                                                                      
-`Y8aaaaa,     ,adPPYba,   8b,dPPYba,  88  8b,dPPYba,      `Y8aaaaa,     ,adPPYba,  8b,dPPYba,  8b       d8  88   ,adPPYba,   ,adPPYba,  ,adPPYba,  
-  `"""""8b,  a8"     "8a  88P'   "Y8  88  88P'   `"8a       `"""""8b,  a8P_____88  88P'   "Y8  `8b     d8'  88  a8"     ""  a8P_____88  I8[    ""  
-        `8b  8b       d8  88          88  88       88             `8b  8PP"""""""  88           `8b   d8'   88  8b          8PP"""""""   `"Y8ba,   
-Y8a     a8P  "8a,   ,a8"  88          88  88       88     Y8a     a8P  "8b,   ,aa  88            `8b,d8'    88  "8a,   ,aa  "8b,   ,aa  aa    ]8I  
- "Y88888P"    `"YbbdP"'   88          88  88       88      "Y88888P"    `"Ybbd8"'  88              "8"      88   `"Ybbd8"'   `"Ybbd8"'  `"YbbdP"'  
 
+███████╗ ██████╗ ██████╗ ██╗███╗   ██╗    ███████╗███████╗██████╗ ██╗   ██╗██╗ ██████╗███████╗███████╗
+██╔════╝██╔═══██╗██╔══██╗██║████╗  ██║    ██╔════╝██╔════╝██╔══██╗██║   ██║██║██╔════╝██╔════╝██╔════╝
+███████╗██║   ██║██████╔╝██║██╔██╗ ██║    ███████╗█████╗  ██████╔╝██║   ██║██║██║     █████╗  ███████╗
+╚════██║██║   ██║██╔══██╗██║██║╚██╗██║    ╚════██║██╔══╝  ██╔══██╗╚██╗ ██╔╝██║██║     ██╔══╝  ╚════██║
+███████║╚██████╔╝██║  ██║██║██║ ╚████║    ███████║███████╗██║  ██║ ╚████╔╝ ██║╚██████╗███████╗███████║
+╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝    ╚══════╝╚══════╝╚═╝  ╚═╝  ╚═══╝  ╚═╝ ╚═════╝╚══════╝╚══════╝
+                                                                                                      
 ]])
                                                                                                                                                    
 --[[                                                                                                                                                   
@@ -56,10 +54,10 @@ by Nebula Softworks
 
 ]]
 
-local Release = "Prerelease Beta 6.1"
+local Release = "Prerelease Beta 0.1"
 
 local Luna = { 
-	Folder = "Luna", 
+	Folder = "SorinHub", 
 	Options = {}, 
 	ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(117, 164, 206)), ColorSequenceKeypoint.new(0.50, Color3.fromRGB(123, 201, 201)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(224, 138, 175))} 
 }
@@ -75,7 +73,7 @@ local Camera = workspace.CurrentCamera
 local CoreGui = game:GetService("CoreGui")
 
 local isStudio
-local website = "github.com/Nebula-Softworks"
+local website = "https://scripts.sorinservice.online"
 
 if RunService:IsStudio() then
 	isStudio = true
