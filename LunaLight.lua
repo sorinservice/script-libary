@@ -186,7 +186,7 @@ function Luna:Intro(text, duration)
         blur:Destroy()
     end
 end)
-
+gui:Destroy()
 
 -- ===== MAIN WINDOW =====
 function Luna:CreateWindow(cfg)
