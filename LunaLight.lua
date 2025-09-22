@@ -1,20 +1,5 @@
 -- LunaLight.lua
 -- Sorin Loader • LunaLight UI Library (remastered)
--- Features:
---  - Intro screen with glass + blur + spinner (configurable duration)
---  - Glassy main window (rounded corners, subtle shadow, hover effects)
---  - Draggable header
---  - Search filter
---  - AddGame(name, placeId, callback) with confirm popup before teleport
---  - Optional footer text and easy theme overrides
---  - Safe pcall teleport; if no placeId, runs callback
---
--- Usage (loader.lua):
--- local Luna = loadstring(game:HttpGet(".../LunaLight.lua"))()
--- Luna:Intro("Loading Sorin Loader...", 2.3)
--- local ui = Luna:CreateWindow({ Title="Supported Games", Subtitle="Sorin Loader v1.0", Count=#Games })
--- for _,g in ipairs(Games) do ui:AddGame(g.Name, g.PlaceId) end
--- ui:SetFooter("v1.0  •  Updated " .. os.date("%Y-%m-%d"))
 
 local Players          = game:GetService("Players")
 local TweenService     = game:GetService("TweenService")
@@ -27,7 +12,7 @@ local player = Players.LocalPlayer
 local Luna = {}
 Luna.__index = Luna
 
--- ===== THEME (can be overridden via Luna:Setup({Accent=...})) =====
+-- ===== THEME =====
 local Theme = {
     Background   = Color3.fromRGB(22, 22, 28),
     Header       = Color3.fromRGB(28, 28, 36),
@@ -36,20 +21,24 @@ local Theme = {
     Hover        = Color3.fromRGB(80, 80, 120),
     Text         = Color3.fromRGB(235, 235, 245),
     SubText      = Color3.fromRGB(170, 170, 200),
-    Stroke       = Color3.fromRGB(255, 255, 255), -- glass outline
+    Stroke       = Color3.fromRGB(255, 255, 255),
     Shadow       = Color3.fromRGB(0, 0, 0),
 }
 
 -- ===== UTIL =====
 local function tween(inst, t, props, style, dir)
-    return TweenService:Create(inst, TweenInfo.new(t or 0.25, style or Enum.EasingStyle.Quad, dir or Enum.EasingDirection.Out), props)
+    return TweenService:Create(
+        inst,
+        TweenInfo.new(t or 0.25, style or Enum.EasingStyle.Quad, dir or Enum.EasingDirection.Out),
+        props
+    )
 end
 
 local function makeShadow(parent, radius, opacity)
     local shadow = Instance.new("ImageLabel")
     shadow.Name = "Shadow"
     shadow.BackgroundTransparency = 1
-    shadow.Image = "rbxassetid://5028857084" -- soft drop shadow (9-slice)
+    shadow.Image = "rbxassetid://5028857084"
     shadow.ScaleType = Enum.ScaleType.Slice
     shadow.SliceCenter = Rect.new(24,24,276,276)
     shadow.ImageColor3 = Theme.Shadow
@@ -104,14 +93,12 @@ function Luna:Intro(text, duration)
 
     makeShadow(overlay, 80, 0.18)
 
-    -- Gentle lighting blur (namespaced so we can remove our own)
     local blur = Instance.new("BlurEffect")
     blur.Name = "LunaIntroBlur"
     blur.Size = 0
     blur.Parent = Lighting
     tween(blur, 0.35, {Size = 15}):Play()
 
-    -- Container for text + spinner
     local container = Instance.new("Frame")
     container.AnchorPoint = Vector2.new(0.5,0.5)
     container.Position = UDim2.new(0.5,0,0.5,0)
@@ -128,8 +115,8 @@ function Luna:Intro(text, duration)
     spinner.Position = UDim2.new(0, 20, 0.5, 0)
     spinner.Size = UDim2.new(0, 56, 0, 56)
     spinner.BackgroundTransparency = 1
-    spinner.Image = "rbxassetid://3926307971" -- UI icons sheet
-    spinner.ImageRectOffset = Vector2.new(628, 420) -- spinner glyph
+    spinner.Image = "rbxassetid://3926307971"
+    spinner.ImageRectOffset = Vector2.new(628, 420)
     spinner.ImageRectSize = Vector2.new(36, 36)
     spinner.ImageColor3 = Theme.Accent
     spinner.Parent = container
@@ -164,10 +151,10 @@ function Luna:Intro(text, duration)
     tween(sub, 0.35, {TextTransparency = 0}):Play()
     tween(overlay, 0.35, {BackgroundTransparency = 0.3}):Play()
 
-    -- spinner rotation
+    -- spinner rotation (klassisch, robust)
     task.spawn(function()
         while spinner.Parent do
-            spinner.Rotation += 10
+            spinner.Rotation = spinner.Rotation + 10
             task.wait(0.03)
         end
     end)
@@ -181,12 +168,15 @@ function Luna:Intro(text, duration)
     local t4 = tween(overlay, 0.25, {BackgroundTransparency = 1})
     t1:Play(); t2:Play(); t3:Play(); t4:Play()
     task.wait(0.26)
+
     pcall(function()
-    if blur.Parent == Lighting then
-        blur:Destroy()
-    end
-end)
-gui:Destroy()
+        if blur.Parent == Lighting then
+            blur:Destroy()
+        end
+    end)
+
+    gui:Destroy()
+end  -- <<<<<< WICHTIG: schließt Intro()
 
 -- ===== MAIN WINDOW =====
 function Luna:CreateWindow(cfg)
@@ -247,7 +237,7 @@ function Luna:CreateWindow(cfg)
     closeBtn.Position = UDim2.new(1, -36, 0, 18)
     closeBtn.BackgroundTransparency = 1
     closeBtn.Image = "rbxassetid://3926305904"
-    closeBtn.ImageRectOffset = Vector2.new(924, 724) -- X icon
+    closeBtn.ImageRectOffset = Vector2.new(924, 724)
     closeBtn.ImageRectSize = Vector2.new(36, 36)
     closeBtn.ImageColor3 = Theme.Text
     closeBtn.Parent = header
@@ -286,7 +276,7 @@ function Luna:CreateWindow(cfg)
     list.ScrollBarThickness = 6
     list.Parent = frame
 
-    -- Footer (optional)
+    -- Footer
     local footer = Instance.new("TextLabel")
     footer.Size = UDim2.new(1, -24, 0, 18)
     footer.Position = UDim2.new(0, 12, 1, -22)
@@ -303,7 +293,7 @@ function Luna:CreateWindow(cfg)
     frame.BackgroundTransparency = 0.4
     tween(frame, 0.35, {Position = UDim2.new(0.5, -260, 0.5, -190), BackgroundTransparency = 0.15}):Play()
 
-    -- Make draggable via header
+    -- Draggable header
     do
         local dragging, dragStart, startPos
         header.InputBegan:Connect(function(input)
@@ -320,7 +310,10 @@ function Luna:CreateWindow(cfg)
             if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
                 if dragging then
                     local delta = input.Position - dragStart
-                    frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+                    frame.Position = UDim2.new(
+                        startPos.X.Scale, startPos.X.Offset + delta.X,
+                        startPos.Y.Scale, startPos.Y.Offset + delta.Y
+                    )
                 end
             end
         end)
@@ -356,7 +349,7 @@ function Luna:_confirm(gameName, onYes)
     modal.Parent = self._frame
     modal.ZIndex = 50
 
-    local overlay = Instance.new("TextButton") -- catch clicks
+    local overlay = Instance.new("TextButton")
     overlay.Size = UDim2.new(1,0,1,0)
     overlay.BackgroundColor3 = Theme.Background
     overlay.BackgroundTransparency = 0.35
@@ -422,7 +415,6 @@ function Luna:_confirm(gameName, onYes)
         if onYes then onYes() end
     end)
 
-    -- subtle appear animation
     box.Size = UDim2.new(0, 300, 0, 120)
     tween(box, 0.18, {Size = UDim2.new(0, 300, 0, 150)}):Play()
 end
@@ -431,7 +423,7 @@ end
 function Luna:AddGame(name, placeId, callback)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -12, 0, 36)
-    btn.Position = UDim2.new(0, 6, 0, 0) -- y is set in UpdateLayout
+    btn.Position = UDim2.new(0, 6, 0, 0)
     btn.Text = name
     btn.BackgroundColor3 = Theme.Button
     btn.TextColor3 = Theme.Text
@@ -467,7 +459,7 @@ function Luna:UpdateLayout()
     local y = 0
     for _, g in ipairs(self._games) do
         g.Button.Position = UDim2.new(0, 6, 0, y)
-        y += 40
+        y = y + 40
     end
     self._list.CanvasSize = UDim2.new(0,0,0,y)
 end
@@ -481,7 +473,7 @@ function Luna:Filter(query)
         g.Button.Visible = match
         if match then
             g.Button.Position = UDim2.new(0, 6, 0, y)
-            y += 40
+            y = y + 40
         end
     end
     self._list.CanvasSize = UDim2.new(0,0,0,y)
