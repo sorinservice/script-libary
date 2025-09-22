@@ -181,9 +181,12 @@ function Luna:Intro(text, duration)
     local t4 = tween(overlay, 0.25, {BackgroundTransparency = 1})
     t1:Play(); t2:Play(); t3:Play(); t4:Play()
     task.wait(0.26)
-    pcall(function if blur.Parent == Lighting then blur:Destroy() end end)
-    gui:Destroy()
-end
+    pcall(function()
+    if blur.Parent == Lighting then
+        blur:Destroy()
+    end
+end)
+
 
 -- ===== MAIN WINDOW =====
 function Luna:CreateWindow(cfg)
