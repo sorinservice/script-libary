@@ -10,9 +10,8 @@ print([[
  \______/  \______/ |__/      |__/|__/  |__/|__/  |__/ \______/ |_______/ 
                                                                           
                         Invented by SorinServices
-	                      MainCredits to Luna UI
+	               Source: Luna Hub by Nebula Softworks
 ]])
-
 
 --[[                                                                                                                                                   
 
@@ -33,48 +32,13 @@ SSSSSSS     S:::::So:::::ooooo:::::o r:::::r           i::::::i n::::n    n::::n
 S::::::SSSSSS:::::So:::::::::::::::o r:::::r           i::::::i n::::n    n::::n     H:::::::H     H:::::::H u:::::::::::::::ub::::::::::::::::b 
 S:::::::::::::::SS  oo:::::::::::oo  r:::::r           i::::::i n::::n    n::::n     H:::::::H     H:::::::H  uu::::::::uu:::ub:::::::::::::::b  
  SSSSSSSSSSSSSSS      ooooooooooo    rrrrrrr           iiiiiiii nnnnnn    nnnnnn     HHHHHHHHH     HHHHHHHHH    uuuuuuuu  uuuubbbbbbbbbbbbbbbb   
-
-]]--
---[[                                                                                                                                                   
-
-
-██╗     ██╗   ██╗███╗   ██╗ █████╗     ██╗███╗   ██╗████████╗███████╗██████╗ ███████╗ █████╗  ██████╗███████╗    ███████╗██╗   ██╗██╗████████╗███████╗
-██║     ██║   ██║████╗  ██║██╔══██╗    ██║████╗  ██║╚══██╔══╝██╔════╝██╔══██╗██╔════╝██╔══██╗██╔════╝██╔════╝    ██╔════╝██║   ██║██║╚══██╔══╝██╔════╝
-██║     ██║   ██║██╔██╗ ██║███████║    ██║██╔██╗ ██║   ██║   █████╗  ██████╔╝█████╗  ███████║██║     █████╗      ███████╗██║   ██║██║   ██║   █████╗  
-██║     ██║   ██║██║╚██╗██║██╔══██║    ██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██╔══╝  ██╔══██║██║     ██╔══╝      ╚════██║██║   ██║██║   ██║   ██╔══╝  
-███████╗╚██████╔╝██║ ╚████║██║  ██║    ██║██║ ╚████║   ██║   ███████╗██║  ██║██║     ██║  ██║╚██████╗███████╗    ███████║╚██████╔╝██║   ██║   ███████╗
-╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝  ╚═╝    ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝    ╚══════╝ ╚═════╝ ╚═╝   ╚═╝   ╚══════╝
-by    d8b   db d88888b d8888b. db    db db       .d8b.       .d8888.  .d88b.  d88888b d888888b db   d8b   db  .d88b.  d8888b. db   dD .d8888. 
-      888o  88 88'     88  `8D 88    88 88      d8' `8b      88'  YP .8P  Y8. 88'     `~~88~~' 88   I8I   88 .8P  Y8. 88  `8D 88 ,8P' 88'  YP 
-      88V8o 88 88ooooo 88oooY' 88    88 88      88ooo88      `8bo.   88    88 88ooo      88    88   I8I   88 88    88 88oobY' 88,8P   `8bo.   
-      88 V8o88 88~~~~~ 88~~~b. 88    88 88      88~~~88        `Y8b. 88    88 88~~~      88    Y8   I8I   88 88    88 88`8b   88`8b     `Y8b. 
-      88  V888 88.     88   8D 88b  d88 88booo. 88   88      db   8D `8b  d8' 88         88    `8b d8'8b d8' `8b  d8' 88 `88. 88 `88. db   8D 
-      VP   V8P Y88888P Y8888P' ~Y8888P' Y88888P YP   YP      `8888Y'  `Y88P'  YP         YP     `8b8' `8d8'   `Y88P'  88   YD YP   YD `8888Y' 
-
-
+            ___              _                             _     _           ___          _      ___              _           
+           |   \ _____ _____| |___ _ __  ___ _ __  ___ _ _| |_  | |__ _  _  / __| ___ _ _(_)_ _ / __| ___ _ ___ _(_)__ ___ ___
+           | |) / -_) V / -_) / _ \ '_ \/ -_) '  \/ -_) ' \  _| | '_ \ || | \__ \/ _ \ '_| | ' \\__ \/ -_) '_\ V / / _/ -_|_-<
+           |___/\___|\_/\___|_\___/ .__/\___|_|_|_\___|_||_\__| |_.__/\_, | |___/\___/_| |_|_||_|___/\___|_|  \_/|_\__\___/__/
+                                   |_|                                 |__/                                                                                                                            
+                                                                                                                                                                                                                                                                       
 Main Credits
-
-Hunter (Nebula Softworks) | Designing And Programming | Main Developer
-JustHey (Nebula Softworks) | Configurations, Bug Fixing And More! | Co Developer
-Throit | Color Picker
-Wally | Dragging And Certain Functions
-Sirius | PCall Parsing, Notifications, Slider And Home Tab
-Luna Executor | Original UI
-
-
-Extra Credits / Provided Certain Elements
-
-Pookie Pepelss | Bug Tester
-Inori | Configuration Concept
-Latte Softworks and qweery | Lucide Icons And Material Icons
-kirill9655 | Loading Circle
-Deity/dp4pv/x64x70 | Certain Scripting and Testing ig
-
-Contributors
-iPigTw | Typo Fixer, Fixed Key System!!
-pushByAccident | Fixing Executor Lists
-ImFloriz | Method Fixing
-
 Luna Interface Suite
 by Nebula Softworks
 
@@ -109,7 +73,7 @@ end
 local IconModule = {
 	Lucide = nil,
 	Material = {
-				["_add_alert"] = "http://www.roblox.com/asset/?id=6031071067";
+		["_add_alert"] = "http://www.roblox.com/asset/?id=6031071067";
 		["_auto_delete"] = "http://www.roblox.com/asset/?id=6031071068";
 		["_error"] = "http://www.roblox.com/asset/?id=6031071057";
 		["_error_outline"] = "http://www.roblox.com/asset/?id=6031071050";
@@ -1699,12 +1663,12 @@ local function BlurModule(Frame)
 	local gTokenMH = 99999999
 	local gToken = math.random(1, gTokenMH)
 
-	local DepthOfField = Instance.new('DepthOfFieldEffect', game:GetService('Lighting'))
-	DepthOfField.FarIntensity = 0
-	DepthOfField.FocusDistance = 51.6
-	DepthOfField.InFocusRadius = 50
-	DepthOfField.NearIntensity = 6
-	DepthOfField.Name = "DPT_"..gToken
+  --local DepthOfField = Instance.new('DepthOfFieldEffect', game:GetService('Lighting'))
+  --DepthOfField.FarIntensity = 0
+  --DepthOfField.FocusDistance = 51.6
+  --DepthOfField.InFocusRadius = 50
+  --DepthOfField.NearIntensity = 6
+  --DepthOfField.Name = "DPT_"..gToken
 
 	local frame = Instance.new('Frame')
 	frame.Parent = Frame
@@ -1897,7 +1861,7 @@ local function unpackt(array : table)
 end
 
 -- Interface Management
-local LunaUI = isStudio and script.Parent:WaitForChild("Luna UI") or game:GetObjects("rbxassetid://86467455075715")[1]
+local LunaUI = isStudio and script.Parent:WaitForChild("Sorin UI") or game:GetObjects("rbxassetid://86467455075715")[1]
 
 local SizeBleh = nil
 
@@ -1906,7 +1870,7 @@ local function Hide(Window, bind, notif)
 	bind = string.split(tostring(bind), "Enum.KeyCode.")
 	bind = bind[2]
 	if notif then
-		Luna:Notification({Title = "Interface Hidden", Content = "The interface has been hidden, you may reopen the interface by Pressing the UI Bind In Settings ("..tostring(bind)..")", Icon = "visibility_off"})
+		Luna:Notification({Title = "Interface Hidden", Content = "The interface has been hidden, you can reopen the interface by Pressing the UI Bind In Settings ("..tostring(bind)..")", Icon = "visibility_off"})
 	end
 	tween(Window, {BackgroundTransparency = 1})
 	tween(Window.Elements, {BackgroundTransparency = 1})
@@ -2288,7 +2252,7 @@ function Luna:CreateWindow(WindowSettings)
 		LogoID = "77656423525793",
 		LoadingEnabled = true,
 		LoadingTitle = "SorinServices Scripthub",
-		LoadingSubtitle = "by Nebula Softworks",
+		LoadingSubtitle = "by SorinServices",
 
 		ConfigSettings = {},
 
@@ -2339,7 +2303,7 @@ function Luna:CreateWindow(WindowSettings)
 
 	LoadingFrame.Frame.Frame.Title.Text = WindowSettings.LoadingTitle
 	LoadingFrame.Frame.Frame.Subtitle.Text = WindowSettings.LoadingSubtitle
-	LoadingFrame.Version.Text = LoadingFrame.Frame.Frame.Title.Text == "Sorin Interface Suite" and Release or "SorinService using Luna UI. Props to them :)"
+	LoadingFrame.Version.Text = LoadingFrame.Frame.Frame.Title.Text == "Sorin Interface Suite" and Release or "SorinService UI"
 
 	Navigation.Player.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
 	Navigation.Player.Namez.Text = Players.LocalPlayer.DisplayName
@@ -2561,7 +2525,7 @@ function Luna:CreateWindow(WindowSettings)
 
 		HomeTabSettings = Kwargify({
 			Icon = 1,
-			SupportedExecutors = {"Vega X", "Delta", "Nihon", "Xeno"}, -- THESE DEFAULTS ARE PLACEHOLDERS!! I DO NOT ADVERTISE THESE, THEY ARE JUS THE FIRST THAT CAME TO MIND. I HAVE NO IDEA WHETHER THEYA RE RATS (they prob are) AND IM NOT RESPONSIBLE IF U GET VIRUSES FROM INSTALLING AFTER SEEING THIS LIST
+			SupportedExecutors = {"Delta", "Krnl", "Xeno", "Solara", "Swift", "Wave", "Zenith", "Volcano", "Seliware", "Velocity", "Potassium"}, 
 			DiscordInvite = "noinvitelink" -- The disvord invite link. Do not include the link so for example if my invite was discord.gg/nebula I would put nebula
 		}, HomeTabSettings or {})
 
@@ -2610,7 +2574,7 @@ function Luna:CreateWindow(WindowSettings)
 
 		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or identifyexecutor()) or "Your Executor Does Not Support identifyexecutor."
 		for i,v in pairs(HomeTabSettings.SupportedExecutors) do
-			if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Luna Interface Suite - Debugging Mode" break end
+			if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Sorin Interface Suite - Debugging Mode" break end
 			if v == identifyexecutor() then
 				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Supports This Script."
 				break
