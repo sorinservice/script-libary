@@ -55,7 +55,7 @@ by Nebula Softworks
 
 ]]
 
-local Release = "Closed Beta [v 0.1]"
+local Release = "Closed Beta [v 0.2]"
 
 local Sorin = { 
 	Folder = "SorinHub", 
@@ -2585,7 +2585,9 @@ function Sorin:CreateWindow(WindowSettings)
 
 		HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
 		HomeTabPage.player.Text.Text = "Hello, " .. Players.LocalPlayer.DisplayName
-		HomeTabPage.player.user.Text = "You are using" .. Release
+		HomeTabPage.player.user.RichText = true
+        HomeTabPage.player.user.Text = "You are using <b>" .. Release .. "</b>"
+
 
 		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or identifyexecutor()) or "Your Executor Does Not Support identifyexecutor."
 
