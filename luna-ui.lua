@@ -1,4 +1,4 @@
---[[
+print([[
 
 
       SSSSSS            
@@ -21,7 +21,7 @@ S::::::::::::::S oo:::::::oo  r::r       i::::in::n    n::n     H:::::::H     H:
 	
                                              Invented by SorinServices
 	                                    Source: Luna Hub by Nebula Softworks
-]]--
+]])
 
 --[[                                                                                                                                                   
 
