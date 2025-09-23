@@ -1,27 +1,19 @@
 print([[
 
-
-      SSSSSS            
-   SSS::::::SSS                            iii                  HHHHHHHHH     HHHHHHHHH                 b::::::b            
- SS:::::::::::SS                          i:::i                 H:::::::H     H:::::::H                 b::::::b            
-S::::SSSSS:::::S                           iii                  H:::::::H     H:::::::H                 b::::::b            
-S::::S     SSSSS                                                HH::::::H     H::::::HH                  b:::::b            
-S::S               oooooooo   rrrrr   rr  iiiinnnn  nnnnn         H:::::H     H:::::H  uuuuuu    uuuuuu  b:::::bbbbbbbbb    
-S::S             oo:::::::oo r::rrr:::::r i::innnnn:::::nn        H:::::H     H:::::H  u::::u    u::::u  b::::::::::::::bb  
- S::::S         o:::::::::::or:::::::::::ri::in::::::::::nn       H::::::HHHHH::::::H  u::::u    u::::u  b::::::::::::::::b 
-  S::::::::S    o::oooooo:::orr::::rrrr::ri::inn:::nnnn:::n       H:::::::::::::::::H  u::::u    u::::u  b:::::bbbbb:::::::b
-    S::::::::S  o::o     o::o r:::r   r::ri::i n::n    n::n       H:::::::::::::::::H  u::::u    u::::u  b:::::b    b::::::b
-       S::::::S o::o     o::o r::r    rrrri::i n::n    n::n       H::::::HHHHH::::::H  u::::u    u::::u  b:::::b     b:::::b
-            S::So::o     o::o r::r        i::i n::n    n::n       H:::::H     H:::::H  u::::u    u::::u  b:::::b     b:::::b
-            S::So::o     o::o r::r        i::i n::n    n::n       H:::::H     H:::::H  u:::::uuuu:::::u  b:::::b     b:::::b
-SSSSSSS     S::So:::ooooo:::o r::r       i::::in::n    n::n     HH::::::H     H::::::HHu:::::::::::::::uub:::::bbbbbb::::::b
-S::::::SSSSS:::So:::::::::::o r::r       i::::in::n    n::n     H:::::::H     H:::::::H u:::::::::::::::ub::::::::::::::::b 
-S::::::::::::::S oo:::::::oo  r::r       i::::in::n    n::n     H:::::::H     H:::::::H  uu::::::::uu:::ub:::::::::::::::b  
-  SSSSSSSSSSSS     ooooooo    rrrr       iiiiiinnnn    nnnn     HHHHHHHHH     HHHHHHHHH    uuuuuuuu  uuuubbbbbbbbbbbbbbbb 
+                                                                                            
+ ad88888ba                            88               88        88               88           
+d8"     "8b                           ""               88        88               88           
+Y8,                                                    88        88               88           
+`Y8aaaaa,     ,adPPYba,   8b,dPPYba,  88  8b,dPPYba,   88aaaaaaaa88  88       88  88,dPPYba,   
+  `"""""8b,  a8"     "8a  88P'   "Y8  88  88P'   `"8a  88""""""""88  88       88  88P'    "8a  
+        `8b  8b       d8  88          88  88       88  88        88  88       88  88       d8  
+Y8a     a8P  "8a,   ,a8"  88          88  88       88  88        88  "8a,   ,a88  88b,   ,a8"  
+ "Y88888P"    `"YbbdP"'   88          88  88       88  88        88   `"YbbdP'Y8  8Y"Ybbd8"'   
+                                                                                               
+                           Invented by SorinSoftware Services
+	                       Source: Luna Hub by Nebula Softworks
+	                               Closed BetaScript
 	
-                                         Invented by SorinSoftware Services
-	                                    Source: Luna Hub by Nebula Softworks
-	                                            Closed BetaScript
 ]])
 
 --[[                                                                                                                                                   
