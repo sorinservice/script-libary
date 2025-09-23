@@ -2577,16 +2577,27 @@ function Sorin:CreateWindow(WindowSettings)
 		HomeTabPage.player.user.Text = Players.LocalPlayer.Name .. " - ".. WindowSettings.Name
 
 		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or identifyexecutor()) or "Your Executor Does Not Support identifyexecutor."
-		for i,v in pairs(HomeTabSettings.SupportedExecutors) do
-			if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Sorin Interface Suite - Debugging Mode" break end
-			if v == identifyexecutor() then
-				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Supports This Script."
-				break
-			else
-				HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Your Executor Isn't fully Supported by this Script."
-				break
-			end
-		end
+
+        if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text =
+        "Sorin Interface Suite - Debugging Mode"
+        else
+        local exec = identifyexecutor()
+        local supported = false
+        for _, v in pairs(HomeTabSettings.SupportedExecutors) do
+        if v == exec then supported = true
+            break
+        end
+    end
+
+    if supported then
+        HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text =
+            "Your Executor Supports This Script."
+    else
+        HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text =
+            "Your Executor isn't fully supported by this script."
+    end
+end
+
 
 		-- Stolen From Sirius Stuff Begins Here
 
