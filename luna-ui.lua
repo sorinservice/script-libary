@@ -1861,7 +1861,7 @@ local function unpackt(array : table)
 end
 
 -- Interface Management
-local LunaUI = isStudio and script.Parent:WaitForChild("Sorin UI") or game:GetObjects("rbxassetid://86467455075715")[1]
+local SorinUI = isStudio and script.Parent:WaitForChild("Sorin UI") or game:GetObjects("rbxassetid://86467455075715")[1]
 
 local SizeBleh = nil
 
@@ -1907,19 +1907,19 @@ end
 
 
 if gethui then
-	LunaUI.Parent = gethui()
+	SorinUI.Parent = gethui()
 elseif syn and syn.protect_gui then 
-	syn.protect_gui(LunaUI)
-	LunaUI.Parent = CoreGui
+	syn.protect_gui(SorinUI)
+	SorinUI.Parent = CoreGui
 elseif not isStudio and CoreGui:FindFirstChild("RobloxGui") then
-	LunaUI.Parent = CoreGui:FindFirstChild("RobloxGui")
+	SorinUI.Parent = CoreGui:FindFirstChild("RobloxGui")
 elseif not isStudio then
-	LunaUI.Parent = CoreGui
+	SorinUI.Parent = CoreGui
 end
 
 if gethui then
 	for _, Interface in ipairs(gethui():GetChildren()) do
-		if Interface.Name == LunaUI.Name and Interface ~= LunaUI then
+		if Interface.Name == SorinUI.Name and Interface ~= SorinUI then
 			Hide(Interface.SmartWindow)
 			Interface.Enabled = false
 			Interface.Name = "Luna-Old"
@@ -1927,7 +1927,7 @@ if gethui then
 	end
 elseif not isStudio then
 	for _, Interface in ipairs(CoreGui:GetChildren()) do
-		if Interface.Name == LunaUI.Name and Interface ~= LunaUI then
+		if Interface.Name == SorinUI.Name and Interface ~= SorinUI then
 			Hide(Interface.SmartWindow)
 			Interface.Enabled = false
 			Interface.Name = "Luna-Old"
@@ -1935,21 +1935,21 @@ elseif not isStudio then
 	end
 end
 
-LunaUI.Enabled = false
-LunaUI.SmartWindow.Visible = false
-LunaUI.Notifications.Template.Visible = false
-LunaUI.DisplayOrder = 1000000000
+SorinUI.Enabled = false
+SorinUI.SmartWindow.Visible = false
+SorinUI.Notifications.Template.Visible = false
+SorinUI.DisplayOrder = 1000000000
 
-local Main : Frame = LunaUI.SmartWindow
+local Main : Frame = SorinUI.SmartWindow
 local Dragger = Main.Drag
-local dragBar = LunaUI.Drag
+local dragBar = SorinUI.Drag
 local dragInteract = dragBar and dragBar.Interact or nil
 local dragBarCosmetic = dragBar and dragBar.Drag or nil
 local Elements = Main.Elements.Interactions
 local LoadingFrame = Main.LoadingFrame
 local Navigation = Main.Navigation
 local Tabs = Navigation.Tabs
-local Notifications = LunaUI.Notifications
+local Notifications = SorinUI.Notifications
 local KeySystem : Frame = Main.KeySystem
 
 -- local function LoadConfiguration(Configuration, autoload)
@@ -2342,7 +2342,7 @@ function Luna:CreateWindow(WindowSettings)
 	-- 	LoadAutoLoad(WindowSettings.ConfigSettings.ConfigFolder, WindowSettings.ConfigSettings.RootFolder)
 	-- end)
 
-	LunaUI.Enabled = true
+	SorinUI.Enabled = true
 
 	BlurModule(Main)
 
@@ -2350,7 +2350,7 @@ function Luna:CreateWindow(WindowSettings)
 		local KeySettings = WindowSettings.KeySettings
 		
 		Draggable(Dragger, Main)
-		Draggable(LunaUI.MobileSupport, LunaUI.MobileSupport)
+		Draggable(SorinUI.MobileSupport, SorinUI.MobileSupport)
 		if dragBar then Draggable(dragInteract, Main, true, 255) end
 
 		if not WindowSettings.KeySettings then
@@ -2511,7 +2511,7 @@ function Luna:CreateWindow(WindowSettings)
 	LoadingFrame.Visible = false
 
 	Draggable(Dragger, Main)
-	Draggable(LunaUI.MobileSupport, LunaUI.MobileSupport)
+	Draggable(SorinUI.MobileSupport, SorinUI.MobileSupport)
 	if dragBar then Draggable(dragInteract, Main, true, 255) end
 
 	Elements.Template.LayoutOrder = 1000000000
@@ -3207,7 +3207,7 @@ function Luna:CreateWindow(WindowSettings)
 					Luna.Options[Flag] = SliderV
 				end
 
-				LunaUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
+				SorinUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
 					Slider.Main.color.Color = Luna.ThemeGradient
 					Slider.Main.UIStroke.color.Color = Luna.ThemeGradient
 				end)
@@ -3380,7 +3380,7 @@ function Luna:CreateWindow(WindowSettings)
 					Toggle:Destroy()
 				end
 
-				LunaUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
+				SorinUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
 					Toggle.toggle.color.Color = Luna.ThemeGradient
 					Toggle.toggle.UIStroke.color.Color = Luna.ThemeGradient
 				end)
@@ -4796,7 +4796,7 @@ function Luna:CreateWindow(WindowSettings)
 				Luna.Options[Flag] = SliderV
 			end
 
-			LunaUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
+			SorinUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
 				Slider.Main.color.Color = Luna.ThemeGradient
 				Slider.Main.UIStroke.color.Color = Luna.ThemeGradient
 			end)
@@ -4968,7 +4968,7 @@ function Luna:CreateWindow(WindowSettings)
 				Toggle:Destroy()
 			end
 
-			LunaUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
+			SorinUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
 				Toggle.toggle.color.Color = Luna.ThemeGradient
 				Toggle.toggle.UIStroke.color.Color = Luna.ThemeGradient
 			end)
@@ -6464,7 +6464,7 @@ function Luna:CreateWindow(WindowSettings)
 				Callback = function(Value)
 					if c2cp and c3cp then
 						Luna.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Value or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, c2cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, c3cp.Color or Color3.fromRGB(255,255,255))}
-						LunaUI.ThemeRemote.Value = not LunaUI.ThemeRemote.Value
+						SorinUI.ThemeRemote.Value = not SorinUI.ThemeRemote.Value
 					end
 				end
 			})
@@ -6473,7 +6473,7 @@ function Luna:CreateWindow(WindowSettings)
 				Callback = function(Value)
 					if c1cp and c3cp then
 						Luna.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, c1cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, Value or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, c3cp.Color or Color3.fromRGB(255,255,255))}
-						LunaUI.ThemeRemote.Value = not LunaUI.ThemeRemote.Value
+						SorinUI.ThemeRemote.Value = not SorinUI.ThemeRemote.Value
 					end
 				end
 			})
@@ -6482,7 +6482,7 @@ function Luna:CreateWindow(WindowSettings)
 				Callback = function(Valuex)
 					if c2cp and c1cp then
 						Luna.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, c1cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, c2cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, Valuex or Color3.fromRGB(255,255,255))}
-						LunaUI.ThemeRemote.Value = not LunaUI.ThemeRemote.Value
+						SorinUI.ThemeRemote.Value = not SorinUI.ThemeRemote.Value
 					end
 				end
 			})
@@ -6665,7 +6665,7 @@ function Luna:CreateWindow(WindowSettings)
 		dragBar.Visible = false
 		Window.State = false
 		if UserInputService.KeyboardEnabled == false then
-			LunaUI.MobileSupport.Visible = true
+			SorinUI.MobileSupport.Visible = true
 		end
 	end)
 	Main.Controls.Close["MouseEnter"]:Connect(function()
@@ -6680,7 +6680,7 @@ function Luna:CreateWindow(WindowSettings)
 		if Window.State then return end
 		if input.KeyCode == Window.Bind then
 			Unhide(Main, Window.CurrentTab)
-			LunaUI.MobileSupport.Visible = false
+			SorinUI.MobileSupport.Visible = false
 			dragBar.Visible = true
 			Window.State = true
 		end
@@ -6727,11 +6727,11 @@ function Luna:CreateWindow(WindowSettings)
 	end)	
 
 
-	LunaUI.MobileSupport.Interact.MouseButton1Click:Connect(function()
+	SorinUI.MobileSupport.Interact.MouseButton1Click:Connect(function()
 		Unhide(Main, Window.CurrentTab)
 		dragBar.Visible = true
 		Window.State = true
-		LunaUI.MobileSupport.Visible = false
+		SorinUI.MobileSupport.Visible = false
 	end)
 
 	return Window
@@ -6745,7 +6745,7 @@ function Luna:Destroy()
             Notification:Destroy()
         end
     end
-    LunaUI:Destroy()
+    SorinUI:Destroy()
 end
 
 -- Optionales Studio-Demo (nur im Studio)
