@@ -19,7 +19,7 @@ S::::::SSSSS:::So:::::::::::o r::r       i::::in::n    n::n     H:::::::H     H:
 S::::::::::::::S oo:::::::oo  r::r       i::::in::n    n::n     H:::::::H     H:::::::H  uu::::::::uu:::ub:::::::::::::::b  
   SSSSSSSSSSSS     ooooooo    rrrr       iiiiiinnnn    nnnn     HHHHHHHHH     HHHHHHHHH    uuuuuuuu  uuuubbbbbbbbbbbbbbbb 
 	
-                                             Invented by SorinServices
+                                         Invented by SorinSoftware Services
 	                                    Source: Luna Hub by Nebula Softworks
 	                                            Closed BetaScript
 ]])
