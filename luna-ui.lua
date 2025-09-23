@@ -21,6 +21,7 @@ S::::::::::::::S oo:::::::oo  r::r       i::::in::n    n::n     H:::::::H     H:
 	
                                              Invented by SorinServices
 	                                    Source: Luna Hub by Nebula Softworks
+	                                            Closed BetaScript
 ]])
 
 --[[                                                                                                                                                   
@@ -54,7 +55,7 @@ by Nebula Softworks
 
 ]]
 
-local Release = "Prerelease Beta 0.1"
+local Release = "Closed Beta [v 0.1]"
 
 local Sorin = { 
 	Folder = "SorinHub", 
@@ -2584,7 +2585,7 @@ function Sorin:CreateWindow(WindowSettings)
 
 		HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
 		HomeTabPage.player.Text.Text = "Hello, " .. Players.LocalPlayer.DisplayName
-		HomeTabPage.player.user.Text = Players.LocalPlayer.Name .. " - ".. WindowSettings.Name
+		HomeTabPage.player.user.Text = "You are using" .. Release
 
 		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or identifyexecutor()) or "Your Executor Does Not Support identifyexecutor."
 
