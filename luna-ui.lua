@@ -46,7 +46,7 @@ by Nebula Softworks
 
 local Release = "Prerelease Beta 0.1"
 
-local Luna = { 
+local Sorin = { 
 	Folder = "SorinHub", 
 	Options = {}, 
 	ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Color3.fromRGB(117, 164, 206)), ColorSequenceKeypoint.new(0.50, Color3.fromRGB(123, 201, 201)), ColorSequenceKeypoint.new(1.00, Color3.fromRGB(224, 138, 175))} 
@@ -1658,17 +1658,19 @@ local function BlurModule(Frame)
 	local MTREL = "Glass"
 	local binds = {}
 	local root = Instance.new('Folder', camera)
-	root.Name = 'LunaBlur'
+	root.Name = 'SorinBlur'
 
 	local gTokenMH = 99999999
 	local gToken = math.random(1, gTokenMH)
 
-  --local DepthOfField = Instance.new('DepthOfFieldEffect', game:GetService('Lighting'))
-  --DepthOfField.FarIntensity = 0
-  --DepthOfField.FocusDistance = 51.6
-  --DepthOfField.InFocusRadius = 50
-  --DepthOfField.NearIntensity = 6
-  --DepthOfField.Name = "DPT_"..gToken
+	--[[ - Blur Effekt (Fehleranfällig in manchen Games)
+    local DepthOfField = Instance.new('DepthOfFieldEffect', game:GetService('Lighting'))
+    DepthOfField.FarIntensity = 0
+    DepthOfField.FocusDistance = 51.6
+    DepthOfField.InFocusRadius = 50
+    DepthOfField.NearIntensity = 6
+    DepthOfField.Name = "DPT_"..gToken
+	]]--
 
 	local frame = Instance.new('Frame')
 	frame.Parent = Frame
@@ -1870,7 +1872,7 @@ local function Hide(Window, bind, notif)
 	bind = string.split(tostring(bind), "Enum.KeyCode.")
 	bind = bind[2]
 	if notif then
-		Luna:Notification({Title = "Interface Hidden", Content = "The interface has been hidden, you can reopen the interface by Pressing the UI Bind In Settings ("..tostring(bind)..")", Icon = "visibility_off"})
+		Sorin:Notification({Title = "Interface Hidden", Content = "The interface has been hidden, you can reopen the interface by Pressing ("..tostring(bind)..")", Icon = "visibility_off"})
 	end
 	tween(Window, {BackgroundTransparency = 1})
 	tween(Window.Elements, {BackgroundTransparency = 1})
@@ -1922,7 +1924,7 @@ if gethui then
 		if Interface.Name == SorinUI.Name and Interface ~= SorinUI then
 			Hide(Interface.SmartWindow)
 			Interface.Enabled = false
-			Interface.Name = "Luna-Old"
+			Interface.Name = "Sorin-Old"
 		end
 	end
 elseif not isStudio then
@@ -1930,7 +1932,7 @@ elseif not isStudio then
 		if Interface.Name == SorinUI.Name and Interface ~= SorinUI then
 			Hide(Interface.SmartWindow)
 			Interface.Enabled = false
-			Interface.Name = "Luna-Old"
+			Interface.Name = "Sorin-Old"
 		end
 	end
 end
@@ -1958,7 +1960,7 @@ local KeySystem : Frame = Main.KeySystem
 -- 	local notified = false
 
 -- 	-- Iterate through current UI elements' flags
--- 	for FlagName, Flag in pairs(Luna.Flags) do
+-- 	for FlagName, Flag in pairs(Sorin.Flags) do
 -- 		local FlagValue = Data[FlagName]
 
 -- 		if FlagValue then
@@ -1975,20 +1977,20 @@ local KeySystem : Frame = Main.KeySystem
 -- 			end)
 -- 		else
 -- 			notified = true
--- 			Luna:Notification({Title = "Config Error", Content = "Luna was unable to load or find '"..FlagName.. "'' in the current script. Check ".. website .." for help.", Icon = "flag"})
+-- 			Sorin:Notification({Title = "Config Error", Content = "Sorin was unable to load or find '"..FlagName.. "'' in the current script. Check ".. website .." for help.", Icon = "flag"})
 -- 		end
 -- 	end
 -- 	if autoload and notified == false then
--- 		Luna:Notification({
+-- 		Sorin:Notification({
 -- 			Title = "Config Autoloaded",
--- 			Content = "The Configuration Has Been Automatically Loaded. Thank You For Using Luna Library",
+-- 			Content = "The Configuration Has Been Automatically Loaded. Thank You For Using Sorin Library",
 -- 			Icon = "file-code-2",
 -- 			ImageSource = "Lucide"
 -- 		})
 -- 	elseif notified == false then
--- 		Luna:Notification({
+-- 		Sorin:Notification({
 -- 			Title = "Config Loaded",
--- 			Content = "The Configuration Has Been Loaded. Thank You For Using Luna Library",
+-- 			Content = "The Configuration Has Been Loaded. Thank You For Using Sorin Library",
 -- 			Icon = "file-code-2",
 -- 			ImageSource = "Lucide"
 -- 		})
@@ -1999,7 +2001,7 @@ local KeySystem : Frame = Main.KeySystem
 
 -- local function SaveConfiguration(Configuration, ConfigFolder, hasRoot)
 -- 	local Data = {}
--- 	for i,v in pairs(Luna.Flags) do
+-- 	for i,v in pairs(Sorin.Flags) do
 -- 		if v.Type == "ColorPicker" then
 -- 			Data[i] = PackColor(v.Color)
 -- 		else
@@ -2104,7 +2106,7 @@ local function Draggable(Bar, Window, enableTaptic, tapticOffset)
 	end)
 end
 
-function Luna:Notification(data) -- action e.g open messages
+function Sorin:Notification(data) -- action e.g open messages
 	task.spawn(function()
 		data = Kwargify({
 			Title = "Missing Title",
@@ -2244,7 +2246,7 @@ local function Minimize(Window)
 end
 
 
-function Luna:CreateWindow(WindowSettings)
+function Sorin:CreateWindow(WindowSettings)
 
 	WindowSettings = Kwargify({
 		Name = "SorinHub UI",
@@ -2362,11 +2364,11 @@ function Luna:CreateWindow(WindowSettings)
 
 		if typeof(WindowSettings.KeySettings.Key) == "string" then WindowSettings.KeySettings.Key = {WindowSettings.KeySettings.Key} end
 
-		local direc = WindowSettings.KeySettings.SaveInRoot and "Luna/Configurations/" .. WindowSettings.ConfigSettings.RootFolder .. "/" .. WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/" or "Luna/Configurations/" ..  WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/"
+		local direc = WindowSettings.KeySettings.SaveInRoot and "Sorin/Configurations/" .. WindowSettings.ConfigSettings.RootFolder .. "/" .. WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/" or "Sorin/Configurations/" ..  WindowSettings.ConfigSettings.ConfigFolder .. "/Key System/"
 
-		if isfile and isfile(direc .. WindowSettings.KeySettings.FileName .. ".luna") then
+		if isfile and isfile(direc .. WindowSettings.KeySettings.FileName .. ".sorin") then
 			for i, Key in ipairs(WindowSettings.KeySettings.Key) do
-				if string.find(readfile(direc .. WindowSettings.KeySettings.FileName .. ".luna"), Key) then
+				if string.find(readfile(direc .. WindowSettings.KeySettings.FileName .. ".sorin"), Key) then
 					Passthrough = true
 					break
 				end
@@ -2450,9 +2452,9 @@ function Luna:CreateWindow(WindowSettings)
 					KeySystem.Visible = false
 					if WindowSettings.KeySettings.SaveKey then
 						if writefile then
-							writefile(direc .. WindowSettings.KeySettings.FileName .. ".luna", FoundKey)
+							writefile(direc .. WindowSettings.KeySettings.FileName .. ".sorin", FoundKey)
 						end
-						Luna:Notification({Title = "Key System", Content = "The key for this script has been saved successfully.", Icon = "lock_open"})
+						Sorin:Notification({Title = "Key System", Content = "The key for this script has been saved successfully.", Icon = "lock_open"})
 					end
 				else
 					if AttemptsRemaining == 0 then
@@ -2469,7 +2471,7 @@ function Luna:CreateWindow(WindowSettings)
 
 			KeySystem.Close.MouseButton1Click:Connect(function()
 				
-				Luna:Destroy()
+				Sorin:Destroy()
 			end)
 		end
 	end
@@ -2521,12 +2523,14 @@ function Luna:CreateWindow(WindowSettings)
 
 	local FirstTab = true
 
-	function Window:CreateHomeTab(HomeTabSettings)
+    ---------------------------------------------------------------- -- HomeTab START
+
+    function Window:CreateHomeTab(HomeTabSettings)
 
 		HomeTabSettings = Kwargify({
 			Icon = 1,
-			SupportedExecutors = {"Delta", "Krnl", "Xeno", "Solara", "Swift", "Wave", "Zenith", "Volcano", "Seliware", "Velocity", "Potassium"}, 
-			DiscordInvite = "noinvitelink" -- The disvord invite link. Do not include the link so for example if my invite was discord.gg/nebula I would put nebula
+			SupportedExecutors = {"Solara", "Krnl", "Xeno", "Delta", "Swift", "Wave", "Zenith", "Volcano", "Seliware", "Velocity", "Potassium"}, 
+			DiscordInvite = "XC5hpQQvMX" -- The disvord invite link. Do not include the link so for example if my invite was discord.gg/nebula I would put nebula
 		}, HomeTabSettings or {})
 
 		local HomeTab = {}
@@ -2685,6 +2689,8 @@ function Luna:CreateWindow(WindowSettings)
 				checkFriends()
 			end
 		end)()
+
+        ---------------------------------------------------------------- -- HomeTab END
 
 		-- Stolen From Sirius Stuff ends here
 
@@ -2853,7 +2859,7 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Button.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 						Button.Title.Text = "Callback Error"
-						print("Luna Interface Suite | "..ButtonSettings.Name.." Callback Error " ..tostring(Response))
+						print("Sorin Interface Suite | "..ButtonSettings.Name.." Callback Error " ..tostring(Response))
 						wait(0.5)
 						Button.Title.Text = ButtonSettings.Name
 						TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3117,7 +3123,7 @@ function Luna:CreateWindow(WindowSettings)
 									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 									TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 									Slider.Title.Text = "Callback Error"
-									print("Luna Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+									print("Sorin Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
 									wait(0.5)
 									Slider.Title.Text = SliderSettings.Name
 									TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3127,7 +3133,7 @@ function Luna:CreateWindow(WindowSettings)
 
 								SliderSettings.CurrentValue = NewValue
 								SliderV.CurrentValue = SliderSettings.CurrentValue
-								-- Luna.Flags[SliderSettings.Flag] = SliderSettings
+								-- Sorin.Flags[SliderSettings.Flag] = SliderSettings
 							end
 						else
 							TweenService:Create(Slider.Main.Progress, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.In, 0, false), {Size = UDim2.new(0, Location - Slider.Main.AbsolutePosition.X > 5 and Location - Slider.Main.AbsolutePosition.X or 5, 1, 0)}):Play()
@@ -3150,7 +3156,7 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 						Slider.Title.Text = "Callback Error"
-						print("Luna Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+						print("Sorin Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
 						wait(0.5)
 						Slider.Title.Text = SliderSettings.Name
 						TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3160,7 +3166,7 @@ function Luna:CreateWindow(WindowSettings)
 
 					SliderSettings.CurrentValue = NewVal
 					SliderV.CurrentValue = SliderSettings.CurrentValue
-					-- Luna.Flags[SliderSettings.Flag] = SliderSettings
+					-- Sorin.Flags[SliderSettings.Flag] = SliderSettings
 
 				end
 
@@ -3195,7 +3201,7 @@ function Luna:CreateWindow(WindowSettings)
 
 					Set()
 
-					-- Luna.Flags[SliderSettings.Flag] = SliderSettings
+					-- Sorin.Flags[SliderSettings.Flag] = SliderSettings
 				end
 
 				function SliderV:Destroy()
@@ -3204,12 +3210,12 @@ function Luna:CreateWindow(WindowSettings)
 				end
 
 				if Flag then
-					Luna.Options[Flag] = SliderV
+					Sorin.Options[Flag] = SliderV
 				end
 
 				SorinUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
-					Slider.Main.color.Color = Luna.ThemeGradient
-					Slider.Main.UIStroke.color.Color = Luna.ThemeGradient
+					Slider.Main.color.Color = Sorin.ThemeGradient
+					Slider.Main.UIStroke.color.Color = Sorin.ThemeGradient
 				end)
 
 				return SliderV
@@ -3295,7 +3301,7 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 						Toggle.Title.Text = "Callback Error"
-						print("Luna Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+						print("Sorin Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
 						wait(0.5)
 						Toggle.Title.Text = ToggleSettings.Name
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3322,7 +3328,7 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 						Toggle.Title.Text = "Callback Error"
-						print("Luna Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+						print("Sorin Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
 						wait(0.5)
 						Toggle.Title.Text = ToggleSettings.Name
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3366,7 +3372,7 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
 						Toggle.Title.Text = "Callback Error"
-						print("Luna Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+						print("Sorin Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
 						wait(0.5)
 						Toggle.Title.Text = ToggleSettings.Name
 						TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3381,12 +3387,12 @@ function Luna:CreateWindow(WindowSettings)
 				end
 
 				SorinUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
-					Toggle.toggle.color.Color = Luna.ThemeGradient
-					Toggle.toggle.UIStroke.color.Color = Luna.ThemeGradient
+					Toggle.toggle.color.Color = Sorin.ThemeGradient
+					Toggle.toggle.UIStroke.color.Color = Sorin.ThemeGradient
 				end)
 
 				if Flag then
-					Luna.Options[Flag] = ToggleV
+					Sorin.Options[Flag] = ToggleV
 				end
 
 				return ToggleV
@@ -3488,7 +3494,7 @@ function Luna:CreateWindow(WindowSettings)
 								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 								TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 								Bind.Title.Text = "Callback Error"
-								print("Luna Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+								print("Sorin Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
 								wait(0.5)
 								Bind.Title.Text = BindSettings.Name
 								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3517,7 +3523,7 @@ function Luna:CreateWindow(WindowSettings)
 								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 								TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 								Bind.Title.Text = "Callback Error"
-								print("Luna Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+								print("Sorin Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
 								wait(0.5)
 								Bind.Title.Text = BindSettings.Name
 								TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3537,7 +3543,7 @@ function Luna:CreateWindow(WindowSettings)
 											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 											TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 											Bind.Title.Text = "Callback Error"
-											print("Luna Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+											print("Sorin Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
 											wait(0.5)
 											Bind.Title.Text = BindSettings.Name
 											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3554,7 +3560,7 @@ function Luna:CreateWindow(WindowSettings)
 											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 											TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 											Bind.Title.Text = "Callback Error"
-											print("Luna Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+											print("Sorin Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
 											wait(0.5)
 											Bind.Title.Text = BindSettings.Name
 											TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3604,10 +3610,10 @@ function Luna:CreateWindow(WindowSettings)
 				end
 
 				if Flag then
-					Luna.Options[Flag] = BindV
+					Sorin.Options[Flag] = BindV
 				end
 
-				-- Luna.Flags[BindSettings.Flag] = BindSettings
+				-- Sorin.Flags[BindSettings.Flag] = BindSettings
 
 				return BindV
 
@@ -3684,7 +3690,7 @@ function Luna:CreateWindow(WindowSettings)
 								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 								TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 								Input.Title.Text = "Callback Error"
-								print("Luna Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
+								print("Sorin Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
 								wait(0.5)
 								Input.Title.Text = InputSettings.Name
 								TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3725,7 +3731,7 @@ function Luna:CreateWindow(WindowSettings)
 							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 							Input.Title.Text = "Callback Error"
-							print("Luna Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
+							print("Sorin Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
 							wait(0.5)
 							Input.Title.Text = InputSettings.Name
 							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -3772,7 +3778,7 @@ function Luna:CreateWindow(WindowSettings)
 				end
 
 				if Flag then
-					Luna.Options[Flag] = InputV
+					Sorin.Options[Flag] = InputV
 				end
 
 
@@ -3845,7 +3851,7 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 						Dropdown.Title.Text = "Callback Error"
-						print("Luna Interface Suite | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
+						print("Sorin Interface Suite | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
 						wait(0.5)
 						Dropdown.Title.Text = DropdownSettings.Name
 						TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4114,7 +4120,7 @@ function Luna:CreateWindow(WindowSettings)
 					end
 					Dropdown.Selected.Text = ""
 
-					-- Luna.Flags[DropdownSettings.Flag] = DropdownSettings
+					-- Sorin.Flags[DropdownSettings.Flag] = DropdownSettings
 
 				end
 
@@ -4124,10 +4130,10 @@ function Luna:CreateWindow(WindowSettings)
 				end
 
 				if Flag then
-					Luna.Options[Flag] = DropdownV
+					Sorin.Options[Flag] = DropdownV
 				end
 
-				-- Luna.Flags[DropdownSettings.Flag] = DropdownSettings
+				-- Sorin.Flags[DropdownSettings.Flag] = DropdownSettings
 
 				return DropdownV
 
@@ -4186,7 +4192,7 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(ColorPicker.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 						ColorPicker.Title.Text = "Callback Error"
-						print("Luna Interface Suite | "..ColorPickerSettings.Name.." Callback Error " ..tostring(Response))
+						print("Sorin Interface Suite | "..ColorPickerSettings.Name.." Callback Error " ..tostring(Response))
 						wait(0.5)
 						ColorPicker.Title.Text = ColorPickerSettings.Name
 						TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4373,7 +4379,7 @@ function Luna:CreateWindow(WindowSettings)
 				end
 
 				if Flag then
-					Luna.Options[Flag] = ColorPickerV
+					Sorin.Options[Flag] = ColorPickerV
 				end
 
 				SafeCallback(ColorPickerSettings.Color)
@@ -4445,7 +4451,7 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Button.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Button.Title.Text = "Callback Error"
-					print("Luna Interface Suite | "..ButtonSettings.Name.." Callback Error " ..tostring(Response))
+					print("Sorin Interface Suite | "..ButtonSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					Button.Title.Text = ButtonSettings.Name
 					TweenService:Create(Button, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4706,7 +4712,7 @@ function Luna:CreateWindow(WindowSettings)
 								TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 								TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 								Slider.Title.Text = "Callback Error"
-								print("Luna Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+								print("Sorin Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
 								wait(0.5)
 								Slider.Title.Text = SliderSettings.Name
 								TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4716,7 +4722,7 @@ function Luna:CreateWindow(WindowSettings)
 
 							SliderSettings.CurrentValue = NewValue
 							SliderV.CurrentValue = SliderSettings.CurrentValue
-							-- Luna.Flags[SliderSettings.Flag] = SliderSettings
+							-- Sorin.Flags[SliderSettings.Flag] = SliderSettings
 						end
 					else
 						TweenService:Create(Slider.Main.Progress, TweenInfo.new(0.1, Enum.EasingStyle.Back, Enum.EasingDirection.In, 0, false), {Size = UDim2.new(0, Location - Slider.Main.AbsolutePosition.X > 5 and Location - Slider.Main.AbsolutePosition.X or 5, 1, 0)}):Play()
@@ -4739,7 +4745,7 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Slider.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Slider.Title.Text = "Callback Error"
-					print("Luna Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
+					print("Sorin Interface Suite | "..SliderSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					Slider.Title.Text = SliderSettings.Name
 					TweenService:Create(Slider, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4749,7 +4755,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				SliderSettings.CurrentValue = NewVal
 				SliderV.CurrentValue = SliderSettings.CurrentValue
-				-- Luna.Flags[SliderSettings.Flag] = SliderSettings
+				-- Sorin.Flags[SliderSettings.Flag] = SliderSettings
 
 			end
 
@@ -4784,7 +4790,7 @@ function Luna:CreateWindow(WindowSettings)
 
 				Set()
 
-				-- Luna.Flags[SliderSettings.Flag] = SliderSettings
+				-- Sorin.Flags[SliderSettings.Flag] = SliderSettings
 			end
 
 			function SliderV:Destroy()
@@ -4793,12 +4799,12 @@ function Luna:CreateWindow(WindowSettings)
 			end
 
 			if Flag then
-				Luna.Options[Flag] = SliderV
+				Sorin.Options[Flag] = SliderV
 			end
 
 			SorinUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
-				Slider.Main.color.Color = Luna.ThemeGradient
-				Slider.Main.UIStroke.color.Color = Luna.ThemeGradient
+				Slider.Main.color.Color = Sorin.ThemeGradient
+				Slider.Main.UIStroke.color.Color = Sorin.ThemeGradient
 			end)
 
 			return SliderV
@@ -4883,7 +4889,7 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Toggle.Title.Text = "Callback Error"
-					print("Luna Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					print("Sorin Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4910,7 +4916,7 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Toggle.Title.Text = "Callback Error"
-					print("Luna Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					print("Sorin Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4954,7 +4960,7 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Toggle.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 0}):Play()
 					Toggle.Title.Text = "Callback Error"
-					print("Luna Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
+					print("Sorin Interface Suite | "..ToggleSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					Toggle.Title.Text = ToggleSettings.Name
 					TweenService:Create(Toggle, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -4969,12 +4975,12 @@ function Luna:CreateWindow(WindowSettings)
 			end
 
 			SorinUI.ThemeRemote:GetPropertyChangedSignal("Value"):Connect(function()
-				Toggle.toggle.color.Color = Luna.ThemeGradient
-				Toggle.toggle.UIStroke.color.Color = Luna.ThemeGradient
+				Toggle.toggle.color.Color = Sorin.ThemeGradient
+				Toggle.toggle.UIStroke.color.Color = Sorin.ThemeGradient
 			end)
 
 			if Flag then
-				Luna.Options[Flag] = ToggleV
+				Sorin.Options[Flag] = ToggleV
 			end
 
 			return ToggleV
@@ -5075,7 +5081,7 @@ function Luna:CreateWindow(WindowSettings)
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 							Bind.Title.Text = "Callback Error"
-							print("Luna Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+							print("Sorin Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
 							wait(0.5)
 							Bind.Title.Text = BindSettings.Name
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5104,7 +5110,7 @@ function Luna:CreateWindow(WindowSettings)
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 							Bind.Title.Text = "Callback Error"
-							print("Luna Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+							print("Sorin Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
 							wait(0.5)
 							Bind.Title.Text = BindSettings.Name
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5124,7 +5130,7 @@ function Luna:CreateWindow(WindowSettings)
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 										Bind.Title.Text = "Callback Error"
-										print("Luna Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+										print("Sorin Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
 										wait(0.5)
 										Bind.Title.Text = BindSettings.Name
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5141,7 +5147,7 @@ function Luna:CreateWindow(WindowSettings)
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 										Bind.Title.Text = "Callback Error"
-										print("Luna Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+										print("Sorin Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
 										wait(0.5)
 										Bind.Title.Text = BindSettings.Name
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5191,10 +5197,10 @@ function Luna:CreateWindow(WindowSettings)
 			end
 
 			if Flag then
-				Luna.Options[Flag] = BindV
+				Sorin.Options[Flag] = BindV
 			end
 
-			-- Luna.Flags[BindSettings.Flag] = BindSettings
+			-- Sorin.Flags[BindSettings.Flag] = BindSettings
 
 			return BindV
 
@@ -5302,7 +5308,7 @@ function Luna:CreateWindow(WindowSettings)
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 							Bind.Title.Text = "Callback Error"
-							print("Luna Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+							print("Sorin Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
 							wait(0.5)
 							Bind.Title.Text = BindSettings.Name
 							TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5322,7 +5328,7 @@ function Luna:CreateWindow(WindowSettings)
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 										Bind.Title.Text = "Callback Error"
-										print("Luna Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+										print("Sorin Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
 										wait(0.5)
 										Bind.Title.Text = BindSettings.Name
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5339,7 +5345,7 @@ function Luna:CreateWindow(WindowSettings)
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 										TweenService:Create(Bind.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 										Bind.Title.Text = "Callback Error"
-										print("Luna Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
+										print("Sorin Interface Suite | "..BindSettings.Name.." Callback Error " ..tostring(Response))
 										wait(0.5)
 										Bind.Title.Text = BindSettings.Name
 										TweenService:Create(Bind, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5379,7 +5385,7 @@ function Luna:CreateWindow(WindowSettings)
 				Bind.BindFrame.BindBox.Text = BindSettings.CurrentBind
 				Bind.BindFrame.BindBox.Size = UDim2.new(0, Bind.BindFrame.BindBox.TextBounds.X + 16, 0, 42)
 
-				-- Luna.Flags[BindSettings.Flag] = BindSettings
+				-- Sorin.Flags[BindSettings.Flag] = BindSettings
 
 			end
 
@@ -5388,7 +5394,7 @@ function Luna:CreateWindow(WindowSettings)
 				Bind:Destroy()
 			end
 
-			-- Luna.Flags[BindSettings.Flag] = BindSettings
+			-- Sorin.Flags[BindSettings.Flag] = BindSettings
 
 			return BindV
 
@@ -5464,7 +5470,7 @@ function Luna:CreateWindow(WindowSettings)
 							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 							TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 							Input.Title.Text = "Callback Error"
-							print("Luna Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
+							print("Sorin Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
 							wait(0.5)
 							Input.Title.Text = InputSettings.Name
 							TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5505,7 +5511,7 @@ function Luna:CreateWindow(WindowSettings)
 						TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 						TweenService:Create(Input.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 						Input.Title.Text = "Callback Error"
-						print("Luna Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
+						print("Sorin Interface Suite | "..InputSettings.Name.." Callback Error " ..tostring(Response))
 						wait(0.5)
 						Input.Title.Text = InputSettings.Name
 						TweenService:Create(Input, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5552,7 +5558,7 @@ function Luna:CreateWindow(WindowSettings)
 			end
 
 			if Flag then
-				Luna.Options[Flag] = InputV
+				Sorin.Options[Flag] = InputV
 			end
 
 
@@ -5624,7 +5630,7 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(Dropdown.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					Dropdown.Title.Text = "Callback Error"
-					print("Luna Interface Suite | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
+					print("Sorin Interface Suite | "..DropdownSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					Dropdown.Title.Text = DropdownSettings.Name
 					TweenService:Create(Dropdown, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -5893,7 +5899,7 @@ function Luna:CreateWindow(WindowSettings)
 				end
 				Dropdown.Selected.Text = ""
 
-				-- Luna.Flags[DropdownSettings.Flag] = DropdownSettings
+				-- Sorin.Flags[DropdownSettings.Flag] = DropdownSettings
 
 			end
 
@@ -5903,10 +5909,10 @@ function Luna:CreateWindow(WindowSettings)
 			end
 
 			if Flag then
-				Luna.Options[Flag] = DropdownV
+				Sorin.Options[Flag] = DropdownV
 			end
 
-			-- Luna.Flags[DropdownSettings.Flag] = DropdownSettings
+			-- Sorin.Flags[DropdownSettings.Flag] = DropdownSettings
 
 			return DropdownV
 
@@ -5964,7 +5970,7 @@ function Luna:CreateWindow(WindowSettings)
 					TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundColor3 = Color3.fromRGB(85, 0, 0)}):Play()
 					TweenService:Create(ColorPicker.UIStroke, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {Transparency = 1}):Play()
 					ColorPicker.Title.Text = "Callback Error"
-					print("Luna Interface Suite | "..ColorPickerSettings.Name.." Callback Error " ..tostring(Response))
+					print("Sorin Interface Suite | "..ColorPickerSettings.Name.." Callback Error " ..tostring(Response))
 					wait(0.5)
 					ColorPicker.Title.Text = ColorPickerSettings.Name
 					TweenService:Create(ColorPicker, TweenInfo.new(0.7, Enum.EasingStyle.Exponential), {BackgroundTransparency = 0.5}):Play()
@@ -6151,7 +6157,7 @@ function Luna:CreateWindow(WindowSettings)
 			end
 
 			if Flag then
-				Luna.Options[Flag] = ColorPickerV
+				Sorin.Options[Flag] = ColorPickerV
 			end
 
 			SafeCallback(ColorPickerSettings.Color)
@@ -6198,7 +6204,7 @@ function Luna:CreateWindow(WindowSettings)
 				Description = "Create a config with all of your current settings.",
 				Callback = function()
 					if not inputPath or string.gsub(inputPath, " ", "") == "" then
-						Luna:Notification({
+						Sorin:Notification({
 							Title = "Interface",
 							Icon = "warning",
 							ImageSource = "Material",
@@ -6207,9 +6213,9 @@ function Luna:CreateWindow(WindowSettings)
 						return
 					end
 
-					local success, returned = Luna:SaveConfig(inputPath)
+					local success, returned = Sorin:SaveConfig(inputPath)
 					if not success then
-						Luna:Notification({
+						Sorin:Notification({
 							Title = "Interface",
 							Icon = "error",
 							ImageSource = "Material",
@@ -6217,14 +6223,14 @@ function Luna:CreateWindow(WindowSettings)
 						})
 					end
 
-					Luna:Notification({
+					Sorin:Notification({
 						Title = "Interface",
 						Icon = "info",
 						ImageSource = "Material",
 						Content = string.format("Created config %q", inputPath),
 					})
 
-					configSelection:Set({ Options = Luna:RefreshConfigList() })
+					configSelection:Set({ Options = Sorin:RefreshConfigList() })
 				end
 			})
 
@@ -6234,7 +6240,7 @@ function Luna:CreateWindow(WindowSettings)
 			configSelection = Tab:CreateDropdown({
 				Name = "Select Config",
 				Description = "Select a config to load your settings on.",
-				Options = Luna:RefreshConfigList(),
+				Options = Sorin:RefreshConfigList(),
 				CurrentOption = {},
 				MultipleOptions = false,
 				SpecialType = nil,
@@ -6247,9 +6253,9 @@ function Luna:CreateWindow(WindowSettings)
 				Name = "Load Config",
 				Description = "Load your saved config settings.",
 				Callback = function()
-					local success, returned = Luna:LoadConfig(selectedConfig)
+					local success, returned = Sorin:LoadConfig(selectedConfig)
 					if not success then
-						Luna:Notification({
+						Sorin:Notification({
 							Title = "Interface",
 							Icon = "error",
 							ImageSource = "Material",
@@ -6258,7 +6264,7 @@ function Luna:CreateWindow(WindowSettings)
 						return
 					end
 
-					Luna:Notification({
+					Sorin:Notification({
 						Title = "Interface",
 						Icon = "info",
 						ImageSource = "Material",
@@ -6271,9 +6277,9 @@ function Luna:CreateWindow(WindowSettings)
 				Name = "Overwrite Config",
 				Description = "Overwrite your current config settings.",
 				Callback = function()
-					local success, returned = Luna:SaveConfig(selectedConfig)
+					local success, returned = Sorin:SaveConfig(selectedConfig)
 					if not success then
-						Luna:Notification({
+						Sorin:Notification({
 							Title = "Interface",
 							Icon = "error",
 							ImageSource = "Material",
@@ -6282,7 +6288,7 @@ function Luna:CreateWindow(WindowSettings)
 						return
 					end
 
-					Luna:Notification({
+					Sorin:Notification({
 						Title = "Interface",
 						Icon = "info",
 						ImageSource = "Material",
@@ -6295,7 +6301,7 @@ function Luna:CreateWindow(WindowSettings)
 				Name = "Refresh Config List",
 				Description = "Refresh the current config list.",
 				Callback = function()
-					configSelection:Set({ Options = Luna:RefreshConfigList() })
+					configSelection:Set({ Options = Sorin:RefreshConfigList() })
 				end,
 			})
 
@@ -6305,10 +6311,10 @@ function Luna:CreateWindow(WindowSettings)
 				Description = "Set a config to auto load setting in your next session.",
 				Callback = function()
 					local name = selectedConfig
-					writefile(Luna.Folder .. "/settings/autoload.txt", name)
+					writefile(Sorin.Folder .. "/settings/autoload.txt", name)
 					loadlabel:Set({ Text = "Current autoload config: " .. name })
 
-					Luna:Notification({
+					Sorin:Notification({
 						Title = "Interface",
 						Icon = "info",
 						ImageSource = "Material",
@@ -6327,10 +6333,10 @@ function Luna:CreateWindow(WindowSettings)
 				Description = "Delete The Autoload File",
 				Callback = function()
 					local name = selectedConfig
-					delfile(Luna.Folder .. "/settings/autoload.txt")
+					delfile(Sorin.Folder .. "/settings/autoload.txt")
 					loadlabel:Set({ Text = "None" })
 
-					Luna:Notification({
+					Sorin:Notification({
 						Title = "Interface",
 						Icon = "info",
 						ImageSource = "Material",
@@ -6339,8 +6345,8 @@ function Luna:CreateWindow(WindowSettings)
 				end,
 			})
 
-			if isfile(Luna.Folder .. "/settings/autoload.txt") then
-				local name = readfile(Luna.Folder .. "/settings/autoload.txt")
+			if isfile(Sorin.Folder .. "/settings/autoload.txt") then
+				local name = readfile(Sorin.Folder .. "/settings/autoload.txt")
 				loadlabel:Set( { Text = "Current autoload config: " .. name })
 			end     
 		end
@@ -6355,8 +6361,8 @@ function Luna:CreateWindow(WindowSettings)
 					}
 				end,
 				Load = function(Flag, data)
-					if Luna.Options[Flag] then
-						Luna.Options[Flag]:Set({ CurrentValue = data.state })
+					if Sorin.Options[Flag] then
+						Sorin.Options[Flag]:Set({ CurrentValue = data.state })
 					end
 				end
 			},
@@ -6369,8 +6375,8 @@ function Luna:CreateWindow(WindowSettings)
 					}
 				end,
 				Load = function(Flag, data)
-					if Luna.Options[Flag] and data.value then
-						Luna.Options[Flag]:Set({ CurrentValue = data.value })
+					if Sorin.Options[Flag] and data.value then
+						Sorin.Options[Flag]:Set({ CurrentValue = data.value })
 					end
 				end
 			},
@@ -6383,8 +6389,8 @@ function Luna:CreateWindow(WindowSettings)
 					}
 				end,
 				Load = function(Flag, data)
-					if Luna.Options[Flag] and data.text and type(data.text) == "string" then
-						Luna.Options[Flag]:Set({ CurrentValue = data.text })
+					if Sorin.Options[Flag] and data.text and type(data.text) == "string" then
+						Sorin.Options[Flag]:Set({ CurrentValue = data.text })
 					end
 				end
 			},
@@ -6397,8 +6403,8 @@ function Luna:CreateWindow(WindowSettings)
 					}
 				end,
 				Load = function(Flag, data)
-					if Luna.Options[Flag] and data.value then
-						Luna.Options[Flag]:Set({ CurrentOption = data.value })
+					if Sorin.Options[Flag] and data.value then
+						Sorin.Options[Flag]:Set({ CurrentOption = data.value })
 					end
 				end
 			},
@@ -6424,8 +6430,8 @@ function Luna:CreateWindow(WindowSettings)
 						return Color3.new(r, g, b)
 					end
 
-					if Luna.Options[Flag] and data.color then
-						Luna.Options[Flag]:Set({Color = HexToColor3(data.color)})
+					if Sorin.Options[Flag] and data.color then
+						Sorin.Options[Flag]:Set({Color = HexToColor3(data.color)})
 					end
 				end
 			}
@@ -6446,24 +6452,24 @@ function Luna:CreateWindow(WindowSettings)
 			local c1cp = Tab:CreateColorPicker({
 				Name = "Color 1",
 				Color = Color3.fromRGB(117, 164, 206),
-			}, "LunaInterfaceSuitePrebuiltCPC1") -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+			}, "SorinInterfaceSuitePrebuiltCPC1") -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
 
 			local c2cp = Tab:CreateColorPicker({
 				Name = "Color 2",
 				Color = Color3.fromRGB(123, 201, 201),
-			}, "LunaInterfaceSuitePrebuiltCPC2")
+			}, "SorinInterfaceSuitePrebuiltCPC2")
 
 			local c3cp = Tab:CreateColorPicker({
 				Name = "Color 3",
 				Color = Color3.fromRGB(224, 138, 184),
-			}, "LunaInterfaceSuitePrebuiltCPC3") 
+			}, "SorinInterfaceSuitePrebuiltCPC3") 
 
 			task.wait(1)
 
 			c1cp:Set({
 				Callback = function(Value)
 					if c2cp and c3cp then
-						Luna.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Value or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, c2cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, c3cp.Color or Color3.fromRGB(255,255,255))}
+						Sorin.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, Value or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, c2cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, c3cp.Color or Color3.fromRGB(255,255,255))}
 						SorinUI.ThemeRemote.Value = not SorinUI.ThemeRemote.Value
 					end
 				end
@@ -6472,7 +6478,7 @@ function Luna:CreateWindow(WindowSettings)
 			c2cp:Set({
 				Callback = function(Value)
 					if c1cp and c3cp then
-						Luna.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, c1cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, Value or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, c3cp.Color or Color3.fromRGB(255,255,255))}
+						Sorin.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, c1cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, Value or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, c3cp.Color or Color3.fromRGB(255,255,255))}
 						SorinUI.ThemeRemote.Value = not SorinUI.ThemeRemote.Value
 					end
 				end
@@ -6481,7 +6487,7 @@ function Luna:CreateWindow(WindowSettings)
 			c3cp:Set({
 				Callback = function(Valuex)
 					if c2cp and c1cp then
-						Luna.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, c1cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, c2cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, Valuex or Color3.fromRGB(255,255,255))}
+						Sorin.ThemeGradient = ColorSequence.new{ColorSequenceKeypoint.new(0.00, c1cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(0.50, c2cp.Color or Color3.fromRGB(255,255,255)), ColorSequenceKeypoint.new(1.00, Valuex or Color3.fromRGB(255,255,255))}
 						SorinUI.ThemeRemote.Value = not SorinUI.ThemeRemote.Value
 					end
 				end
@@ -6506,8 +6512,8 @@ function Luna:CreateWindow(WindowSettings)
 		local function BuildFolderTree()
 			if isStudio then return "Config system unavailable." end
 			local paths = {
-				Luna.Folder,
-				Luna.Folder .. "/settings"
+				Sorin.Folder,
+				Sorin.Folder .. "/settings"
 			}
 
 			for i = 1, #paths do
@@ -6523,9 +6529,9 @@ function Luna:CreateWindow(WindowSettings)
 			if isStudio then return "Config system unavailable." end
 
 			if WindowSettings.ConfigSettings.RootFolder ~= nil and WindowSettings.ConfigSettings.RootFolder ~= "" then
-				Luna.Folder = WindowSettings.ConfigSettings.RootFolder .. "/" .. WindowSettings.ConfigSettings.ConfigFolder
+				Sorin.Folder = WindowSettings.ConfigSettings.RootFolder .. "/" .. WindowSettings.ConfigSettings.ConfigFolder
 			else
-				Luna.Folder = WindowSettings.ConfigSettings.ConfigFolder
+				Sorin.Folder = WindowSettings.ConfigSettings.ConfigFolder
 			end
 
 			BuildFolderTree()
@@ -6533,20 +6539,20 @@ function Luna:CreateWindow(WindowSettings)
 
 		SetFolder()
 
-		function Luna:SaveConfig(Path)
+		function Sorin:SaveConfig(Path)
 			if isStudio then return "Config system unavailable." end
 
 			if (not Path) then
 				return false, "Please select a config file."
 			end
 
-			local fullPath = Luna.Folder .. "/settings/" .. Path .. ".luna"
+			local fullPath = Sorin.Folder .. "/settings/" .. Path .. ".sorin"
 
 			local data = {
 				objects = {}
 			}
 
-			for flag, option in next, Luna.Options do
+			for flag, option in next, Sorin.Options do
 				if not ClassParser[option.Class] then continue end
 				if option.IgnoreConfig then continue end
 
@@ -6562,14 +6568,14 @@ function Luna:CreateWindow(WindowSettings)
 			return true
 		end
 
-		function Luna:LoadConfig(Path)
+		function Sorin:LoadConfig(Path)
 			if isStudio then return "Config system unavailable." end
 
 			if (not Path) then
 				return false, "Please select a config file."
 			end
 
-			local file = Luna.Folder .. "/settings/" .. Path .. ".luna"
+			local file = Sorin.Folder .. "/settings/" .. Path .. ".sorin"
 			if not isfile(file) then return false, "Invalid file" end
 
 			local success, decoded = pcall(HttpService.JSONDecode, HttpService, readfile(file))
@@ -6586,16 +6592,16 @@ function Luna:CreateWindow(WindowSettings)
 			return true
 		end
 
-		function Luna:LoadAutoloadConfig()
-			if isfile(Luna.Folder .. "/settings/autoload.txt") then
+		function Sorin:LoadAutoloadConfig()
+			if isfile(Sorin.Folder .. "/settings/autoload.txt") then
 
 				if isStudio then return "Config system unavailable." end
 
-				local name = readfile(Luna.Folder .. "/settings/autoload.txt")
+				local name = readfile(Sorin.Folder .. "/settings/autoload.txt")
 
-				local success, err = Luna:LoadConfig(name)
+				local success, err = Sorin:LoadConfig(name)
 				if not success then
-					return Luna:Notification({
+					return Sorin:Notification({
 						Title = "Interface",
 						Icon = "sparkle",
 						ImageSource = "Material",
@@ -6603,7 +6609,7 @@ function Luna:CreateWindow(WindowSettings)
 					})
 				end
 
-				Luna:Notification({
+				Sorin:Notification({
 					Title = "Interface",
 					Icon = "sparkle",
 					ImageSource = "Material",
@@ -6613,16 +6619,16 @@ function Luna:CreateWindow(WindowSettings)
 			end 
 		end
 
-		function Luna:RefreshConfigList()
+		function Sorin:RefreshConfigList()
 			if isStudio then return "Config system unavailable." end
 
-			local list = listfiles(Luna.Folder .. "/settings")
+			local list = listfiles(Sorin.Folder .. "/settings")
 
 			local out = {}
 			for i = 1, #list do
 				local file = list[i]
-				if file:sub(-5) == ".luna" then
-					local pos = file:find(".luna", 1, true)
+				if file:sub(-5) == ".sorin" then
+					local pos = file:find(".sorin", 1, true)
 					local start = pos
 
 					local char = file:sub(pos, pos)
@@ -6737,7 +6743,7 @@ function Luna:CreateWindow(WindowSettings)
 	return Window
 end
 
-function Luna:Destroy()
+function Sorin:Destroy()
     Main.Visible = false
     for _, Notification in ipairs(Notifications:GetChildren()) do
         if Notification.ClassName == "Frame" then
@@ -6750,12 +6756,12 @@ end
 
 -- Optionales Studio-Demo (nur im Studio)
 if isStudio then
-    local Window = Luna:CreateWindow({
-        Name = "Nebula Client - Luna Hub | Blade Ball",
+    local Window = Sorin:CreateWindow({
+        Name = "Nebula Client - Sorin Hub | Blade Ball",
         Subtitle = "by Nebula Softworks",
         LogoID = "123795201100198",
         LoadingEnabled = true,
-        LoadingTitle = "Nebula Client (Luna Hub)",
+        LoadingTitle = "Nebula Client (Sorin Hub)",
         LoadingSubtitle = "Loading script for Blade Ball",
         KeySystem = true,
         KeySettings = {
@@ -6774,4 +6780,4 @@ if isStudio then
     })
 end
 
-return Luna
+return Sorin
