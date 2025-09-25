@@ -3,7 +3,6 @@
 
 local Players          = game:GetService("Players")
 local TweenService     = game:GetService("TweenService")
-local TeleportService  = game:GetService("TeleportService")
 local UserInputService = game:GetService("UserInputService")
 local Lighting         = game:GetService("Lighting")
 
@@ -342,7 +341,7 @@ function Luna:SetFooter(text)
 end
 
 -- ===== INTERNAL: confirm popup =====
-function Luna:_confirm(gameName, onYes)
+function Luna:_confirm(gameName, scriptCount)
     local modal = Instance.new("Frame")
     modal.Size = UDim2.new(1,0,1,0)
     modal.BackgroundTransparency = 1
@@ -362,7 +361,7 @@ function Luna:_confirm(gameName, onYes)
     local box = Instance.new("Frame")
     box.AnchorPoint = Vector2.new(0.5,0.5)
     box.Position = UDim2.new(0.5,0,0.5,0)
-    box.Size = UDim2.new(0, 300, 0, 150)
+    box.Size = UDim2.new(0, 320, 0, 150)
     box.BackgroundColor3 = Theme.Header
     box.BorderSizePixel = 0
     box.ZIndex = 51
@@ -371,10 +370,10 @@ function Luna:_confirm(gameName, onYes)
     makeShadow(box, 18, 0.22)
 
     local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, -20, 0, 70)
+    lbl.Size = UDim2.new(1, -20, 0, 90)
     lbl.Position = UDim2.new(0, 10, 0, 12)
     lbl.BackgroundTransparency = 1
-    lbl.Text = "Do you want to join\n“".. tostring(gameName) .. "”?"
+    lbl.Text = tostring(gameName) .. "\n\nScripts available: " .. tostring(scriptCount or 0)
     lbl.TextWrapped = true
     lbl.TextColor3 = Theme.Text
     lbl.Font = Enum.Font.Gotham
@@ -382,45 +381,29 @@ function Luna:_confirm(gameName, onYes)
     lbl.ZIndex = 51
     lbl.Parent = box
 
-    local yes = Instance.new("TextButton")
-    yes.Size = UDim2.new(0.5, -15, 0, 34)
-    yes.Position = UDim2.new(0, 10, 1, -44)
-    yes.Text = "Join"
-    yes.BackgroundColor3 = Theme.Accent
-    yes.TextColor3 = Color3.new(1,1,1)
-    yes.Font = Enum.Font.GothamBold
-    yes.TextSize = 16
-    yes.BorderSizePixel = 0
-    yes.ZIndex = 51
-    yes.Parent = box
-    glassify(yes)
-
-    local no = Instance.new("TextButton")
-    no.Size = UDim2.new(0.5, -15, 0, 34)
-    no.Position = UDim2.new(0.5, 5, 1, -44)
-    no.Text = "Cancel"
-    no.BackgroundColor3 = Theme.Button
-    no.TextColor3 = Theme.Text
-    no.Font = Enum.Font.Gotham
-    no.TextSize = 16
-    no.BorderSizePixel = 0
-    no.ZIndex = 51
-    no.Parent = box
-    glassify(no)
+    local closeBtn = Instance.new("TextButton")
+    closeBtn.Size = UDim2.new(1, -20, 0, 34)
+    closeBtn.Position = UDim2.new(0, 10, 1, -44)
+    closeBtn.Text = "Close"
+    closeBtn.BackgroundColor3 = Theme.Accent
+    closeBtn.TextColor3 = Color3.new(1,1,1)
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.TextSize = 16
+    closeBtn.BorderSizePixel = 0
+    closeBtn.ZIndex = 51
+    closeBtn.Parent = box
+    glassify(closeBtn)
 
     overlay.MouseButton1Click:Connect(function() modal:Destroy() end)
-    no.MouseButton1Click:Connect(function() modal:Destroy() end)
-    yes.MouseButton1Click:Connect(function()
-        modal:Destroy()
-        if onYes then onYes() end
-    end)
+    closeBtn.MouseButton1Click:Connect(function() modal:Destroy() end)
 
-    box.Size = UDim2.new(0, 300, 0, 120)
-    tween(box, 0.18, {Size = UDim2.new(0, 300, 0, 150)}):Play()
+    box.Size = UDim2.new(0, 320, 0, 120)
+    tween(box, 0.18, {Size = UDim2.new(0, 320, 0, 150)}):Play()
 end
 
+
 -- ===== ADD GAME =====
-function Luna:AddGame(name, placeId, callback)
+function Luna:AddGame(name, scriptCount)
     local btn = Instance.new("TextButton")
     btn.Size = UDim2.new(1, -12, 0, 36)
     btn.Position = UDim2.new(0, 6, 0, 0)
@@ -441,18 +424,13 @@ function Luna:AddGame(name, placeId, callback)
     end)
 
     btn.MouseButton1Click:Connect(function()
-        self:_confirm(name, function()
-            if placeId then
-                pcall(function() TeleportService:Teleport(placeId, player) end)
-            elseif callback then
-                callback()
-            end
-        end)
+        self:_confirm(name, scriptCount)
     end)
 
     table.insert(self._games, {Name = name, Button = btn})
     self:UpdateLayout()
 end
+
 
 -- ===== UPDATE LAYOUT =====
 function Luna:UpdateLayout()
