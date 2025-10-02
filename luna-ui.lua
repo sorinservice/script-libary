@@ -6793,16 +6793,6 @@ end
 	return Window
 end
 
-function Sorin:Destroy()
-    Main.Visible = false
-    for _, Notification in ipairs(Notifications:GetChildren()) do
-        if Notification.ClassName == "Frame" then
-            Notification.Visible = false
-            Notification:Destroy()
-        end
-    end
-    SorinUI:Destroy()
-end
 
 -- Optionales Studio-Demo (nur im Studio)
 if isStudio then
