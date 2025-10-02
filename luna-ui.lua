@@ -2528,6 +2528,8 @@ function Sorin:CreateWindow(WindowSettings)
 
     ---------------------------------------------------------------- -- HomeTab START
 
+    ---------------------------------------------------------------- -- HomeTab START
+
     function Window:CreateHomeTab(HomeTabSettings)
 
     HomeTabSettings = Kwargify({
@@ -6829,3 +6831,23 @@ if isStudio then
 end
 
 return Sorin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
