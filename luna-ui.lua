@@ -2532,9 +2532,9 @@ function Window:CreateHomeTab(HomeTabSettings)
 
 	HomeTabSettings = Kwargify({
 		Icon = 1,
-		GoodExecutors = {"Krnl", "Delta", "Wave", "Zenith", "Volcano", "Seliware", "Velocity", "Potassium"},
+		GoodExecutors = {"Krnl", "Delta", "Wave", "Zenith", "Seliware", "Velocity", "Potassium", "Codex"},
 		BadExecutors = {"Solara", "Xeno"},
-		DetectedExecutors = {"Swift"},
+		DetectedExecutors = {"Swift", "Valex", "Nucleus"},
 		DiscordInvite = "XC5hpQQvMX" -- Only the invite code, not the full URL.
 	}, HomeTabSettings or {})
 
@@ -2591,16 +2591,16 @@ function Window:CreateHomeTab(HomeTabSettings)
 		local color, message
 		if table.find(HomeTabSettings.GoodExecutors, exec) then
 			color = Color3.fromRGB(80, 255, 80)
-			message = "✅ Your executor is fully supported."
+			message = "✅ Good Executor. I think u can use all Scripts here."
 		elseif table.find(HomeTabSettings.BadExecutors, exec) then
 			color = Color3.fromRGB(255, 180, 50)
-			message = "⚠️ Your executor may cause issues or limited support."
+			message = "⚠️ You have a Badass Exec. Use a better one!"
 		elseif table.find(HomeTabSettings.DetectedExecutors, exec) then
 			color = Color3.fromRGB(255, 60, 60)
-			message = "🚫 This executor is detected or blacklisted."
+			message = "🚫 This executor is detected by Hyperion. Why the shit would you use this?!"
 		else
 			color = Color3.fromRGB(200, 200, 200)
-			message = "❔ Unknown executor."
+			message = "❔ What Executor you using? Not in my System... IDK"
 		end
 
 		HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = message
