@@ -2530,76 +2530,80 @@ function Sorin:CreateWindow(WindowSettings)
 
     function Window:CreateHomeTab(HomeTabSettings)
 
-		HomeTabSettings = Kwargify({
-			Icon = 1,
-			SupportedExecutors = {"Solara", "Krnl", "Xeno", "Delta", "Swift", "Wave", "Zenith", "Volcano", "Seliware", "Velocity", "Potassium"}, 
-			DiscordInvite = "XC5hpQQvMX" -- The disvord invite link. Do not include the link so for example if my invite was discord.gg/nebula I would put nebula
-		}, HomeTabSettings or {})
+    HomeTabSettings = Kwargify({
+        Icon = 1,
+        GoodExecutors = {"Krnl", "Delta", "Wave", "Zenith", "Volcano", "Seliware", "Velocity", "Potassium"},
+        BadExecutors = {"Solara", "Xeno"},
+        DetectedExecutors = {"Swift"},
+        DiscordInvite = "XC5hpQQvMX" -- Only the invite code, not the full URL.
+    }, HomeTabSettings or {})
 
-		local HomeTab = {}
+    local HomeTab = {}
 
-		local HomeTabButton = Navigation.Tabs.Home
-		HomeTabButton.Visible = true
-		if HomeTabSettings.Icon == 2 then
-			HomeTabButton.ImageLabel.Image = GetIcon("dashboard", "Material")
-		end
-
-		local HomeTabPage = Elements.Home
-		HomeTabPage.Visible = true
-
-		function HomeTab:Activate()
-			tween(HomeTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255,255,255)})
-			tween(HomeTabButton, {BackgroundTransparency = 0})
-			tween(HomeTabButton.UIStroke, {Transparency = 0.41})
-
-			Elements.UIPageLayout:JumpTo(HomeTabPage)
-
-			task.wait(0.05)
-
-			for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
-				if OtherTabButton.Name ~= "InActive Template" and OtherTabButton.ClassName == "Frame" and OtherTabButton ~= HomeTabButton then
-					tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(221,221,221)})
-					tween(OtherTabButton, {BackgroundTransparency = 1})
-					tween(OtherTabButton.UIStroke, {Transparency = 1})
-				end
-
-			end
-
-			Window.CurrentTab = "Home"
-		end
-
-		HomeTab:Activate()
-		FirstTab = false
-		HomeTabButton.Interact.MouseButton1Click:Connect(function()
-			HomeTab:Activate()
-		end)
-
-
-		HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-		HomeTabPage.player.Text.Text = "Hello, " .. Players.LocalPlayer.DisplayName
-		HomeTabPage.player.user.RichText = true
-        HomeTabPage.player.user.Text = "You are using <b>" .. Release .. "</b>"
-
-
-		HomeTabPage.detailsholder.dashboard.Client.Title.Text = (isStudio and "Debugging (Studio)" or identifyexecutor()) or "Your Executor Does Not Support identifyexecutor."
-
-        if isStudio then HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text =
-        "Sorin Interface Suite - Debugging Mode"
-        else
-        local exec = identifyexecutor()
-        local supported = false
-        for _, v in pairs(HomeTabSettings.SupportedExecutors) do
-        if v == exec then supported = true
-            break
-        end
+    local HomeTabButton = Navigation.Tabs.Home
+    HomeTabButton.Visible = true
+    if HomeTabSettings.Icon == 2 then
+        HomeTabButton.ImageLabel.Image = GetIcon("dashboard", "Material")
     end
 
-    if supported then
-        HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text =
-            "Your Executor Supports This Script."
+    local HomeTabPage = Elements.Home
+    HomeTabPage.Visible = true
+
+    function HomeTab:Activate()
+        tween(HomeTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(255,255,255)})
+        tween(HomeTabButton, {BackgroundTransparency = 0})
+        tween(HomeTabButton.UIStroke, {Transparency = 0.41})
+
+        Elements.UIPageLayout:JumpTo(HomeTabPage)
+        task.wait(0.05)
+
+        for _, OtherTabButton in ipairs(Navigation.Tabs:GetChildren()) do
+            if OtherTabButton.Name ~= "InActive Template" and OtherTabButton.ClassName == "Frame" and OtherTabButton ~= HomeTabButton then
+                tween(OtherTabButton.ImageLabel, {ImageColor3 = Color3.fromRGB(221,221,221)})
+                tween(OtherTabButton, {BackgroundTransparency = 1})
+                tween(OtherTabButton.UIStroke, {Transparency = 1})
+            end
+        end
+
+        Window.CurrentTab = "Home"
+    end
+
+    HomeTab:Activate()
+    FirstTab = false
+    HomeTabButton.Interact.MouseButton1Click:Connect(function()
+        HomeTab:Activate()
+    end)
+
+    -- === UI SETUP ===
+    HomeTabPage.icon.ImageLabel.Image = Players:GetUserThumbnailAsync(Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+    HomeTabPage.player.Text.Text = "Hello, " .. Players.LocalPlayer.DisplayName
+    HomeTabPage.player.user.RichText = true
+    HomeTabPage.player.user.Text = "You are using <b>" .. Release .. "</b>"
+
+    local exec = (isStudio and "Studio (Debug)" or identifyexecutor()) or "Unknown"
+    HomeTabPage.detailsholder.dashboard.Client.Title.Text = exec
+
+    if isStudio then
+        HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Sorin Interface Suite - Debugging Mode"
+        HomeTabPage.detailsholder.dashboard.Client.Subtitle.TextColor3 = Color3.fromRGB(200, 200, 200)
     else
-        HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text =
-            "Your Executor isn't fully supported by this script."
+        local color, message
+        if table.find(HomeTabSettings.GoodExecutors, exec) then
+            color = Color3.fromRGB(80, 255, 80)
+            message = "✅ Your executor is fully supported."
+        elseif table.find(HomeTabSettings.BadExecutors, exec) then
+            color = Color3.fromRGB(255, 180, 50)
+            message = "⚠️ Your executor may cause issues or limited support."
+        elseif table.find(HomeTabSettings.DetectedExecutors, exec) then
+            color = Color3.fromRGB(255, 60, 60)
+            message = "🚫 This executor is detected or blacklisted."
+        else
+            color = Color3.fromRGB(200, 200, 200)
+            message = "❔ Unknown executor."
+        end
+
+        HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = message
+        HomeTabPage.detailsholder.dashboard.Client.Subtitle.TextColor3 = color
     end
 end
 
