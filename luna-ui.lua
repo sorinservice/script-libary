@@ -2532,7 +2532,7 @@ function Window:CreateHomeTab(HomeTabSettings)
 
 	HomeTabSettings = Kwargify({
 		Icon = 1,
-		GoodExecutors = {"Krnl", "Delta", "Wave", "Zenith", "Seliware", "Velocity", "Potassium", "Codex"},
+		GoodExecutors = {"Krnl", "Delta", "Wave", "Zenith", "Seliware", "Velocity", "Potassium", "Codex", "Volcano"},
 		BadExecutors = {"Solara", "Xeno"},
 		DetectedExecutors = {"Swift", "Valex", "Nucleus"},
 		DiscordInvite = "XC5hpQQvMX" -- Only the invite code, not the full URL.
@@ -2600,7 +2600,7 @@ function Window:CreateHomeTab(HomeTabSettings)
 			message = "🚫 This executor is detected by Hyperion. Why the shit would you use this?!"
 		else
 			color = Color3.fromRGB(200, 200, 200)
-			message = "❔ What Executor you using? Not in my System... IDK"
+			message = "❔ This Exec is not in my System... IDK"
 		end
 
 		HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = message
