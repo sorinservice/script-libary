@@ -2582,7 +2582,7 @@ function Window:CreateHomeTab(HomeTabSettings)
 	HomeTabPage.player.user.Text = "You are using <b>" .. Release .. "</b>"
 
 	local exec = (isStudio and "Studio (Debug)" or identifyexecutor()) or "Unknown"
-	HomeTabPage.detailsholder.dashboard.Client.Title.Text = exec
+	HomeTabPage.detailsholder.dashboard.Client.Title.Text = "U are using: " .. exec
 
 	if isStudio then
 		HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Sorin Interface Suite - Debugging Mode"
