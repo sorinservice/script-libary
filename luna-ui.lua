@@ -2590,13 +2590,13 @@ function Window:CreateHomeTab(HomeTabSettings)
 		local color, message
 		if table.find(HomeTabSettings.GoodExecutors, exec) then
 			color = Color3.fromRGB(80, 255, 80)
-			message = "✅ Good Executor. I think u can use all Scripts here."
+			message = "Good Executor. I think u can use all Scripts here."
 		elseif table.find(HomeTabSettings.BadExecutors, exec) then
 			color = Color3.fromRGB(255, 180, 50)
-			message = "⚠️ Your Exec is Badass. Use a better one!"
+			message = "Your Exec is Badass. Use a better one!"
 		elseif table.find(HomeTabSettings.DetectedExecutors, exec) then
 			color = Color3.fromRGB(255, 60, 60)
-			message = "🚫 This executor is detected by Hyperion. Why the shit would you use this?!"
+			message = "This executor is detected by Hyperion. Why the shit would you use this?!"
 		else
 			color = Color3.fromRGB(200, 200, 200)
 			message = "❔ This executor isn’t in my list. No idea if it’s good or bad."
