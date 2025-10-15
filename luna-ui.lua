@@ -2581,7 +2581,7 @@ function Window:CreateHomeTab(HomeTabSettings)
 	HomeTabPage.player.user.Text = "You are using <b>" .. Release .. "</b>"
 
 	local exec = (isStudio and "Studio (Debug)" or identifyexecutor()) or "Unknown"
-	HomeTabPage.detailsholder.dashboard.Client.Title.Text = "U are using: " .. exec
+	HomeTabPage.detailsholder.dashboard.Client.Title.Text =  exec .. " User"
 
 	if isStudio then
 		HomeTabPage.detailsholder.dashboard.Client.Subtitle.Text = "Sorin Interface Suite - Debugging Mode"
@@ -2593,10 +2593,10 @@ function Window:CreateHomeTab(HomeTabSettings)
 			message = "Good Executor. I think u can use all Scripts here."
 		elseif table.find(HomeTabSettings.BadExecutors, exec) then
 			color = Color3.fromRGB(255, 180, 50)
-			message = "Your Exec is Badass. Use a better one!"
+			message = "Badass Exec. Use a better one!"
 		elseif table.find(HomeTabSettings.DetectedExecutors, exec) then
 			color = Color3.fromRGB(255, 60, 60)
-			message = "This executor is detected by Hyperion. Why the shit would you use this?!"
+			message = "This executor is detected. Why the shit would you use this?!"
 		else
 			color = Color3.fromRGB(200, 200, 200)
 			message = "❔ This executor isn’t in my list. No idea if it’s good or bad."
