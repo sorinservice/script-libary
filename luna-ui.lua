@@ -1,18 +1,17 @@
 print([[
 
                                                                                             
- ad88888ba                            88               88        88               88           
-d8"     "8b                           ""               88        88               88           
-Y8,                                                    88        88               88           
-`Y8aaaaa,     ,adPPYba,   8b,dPPYba,  88  8b,dPPYba,   88aaaaaaaa88  88       88  88,dPPYba,   
-  `"""""8b,  a8"     "8a  88P'   "Y8  88  88P'   `"8a  88""""""""88  88       88  88P'    "8a  
-        `8b  8b       d8  88          88  88       88  88        88  88       88  88       d8  
-Y8a     a8P  "8a,   ,a8"  88          88  88       88  88        88  "8a,   ,a88  88b,   ,a8"  
- "Y88888P"    `"YbbdP"'   88          88  88       88  88        88   `"YbbdP'Y8  8Y"Ybbd8"'   
+ sSSSSSSSs                            ii               HH        HH               BB           
+sSs     sSs                           II               HH        HH               BB           
+SSs                                                    HH        HH               BB           
+sSSSSSSSs     oOOOOOOOo   RRrRRRRRrr  II  NNnNNNNNNn   HHhhhhhhhhHH  UU       UU  BBBBBBBBBb   
+  ssSSSSSss  oOO     OOo  RRRr   rRR  II  NNNn   nNNN  HHhhhhhhhhHH  UU       UU  BBBb    bBB  
+        sSS  OO       OO  RR          II  NN       NN  HH        HH  UU       UU  BB       BB  
+sSs     sSS  oOOo   oOOo  RR          II  NN       NN  HH        HH  uUUu   uUUU  BBBb   bBBb  
+ sSSSSSSSs    oOOOOOOOo   RR          II  NN       NN  HH        HH   uUUUUUUuUU  BBbBBBBBBb   
                                                                                                
                            Invented by SorinSoftware Services
 	                       Source: Luna Hub by Nebula Softworks
-	                               Closed BetaScript
 	
 ]])
 
@@ -47,7 +46,7 @@ by Nebula Softworks
 
 ]]
 
-local Release = "Closed Beta [v 0.2]"
+local Release = "Closed Beta [v 0.3]"
 
 local Sorin = { 
 	Folder = "SorinHub", 
