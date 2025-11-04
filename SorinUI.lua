@@ -3,6 +3,7 @@
 
 local SorinUI = {}
 SorinUI.__index = SorinUI
+SorinUI._VERSION = 20241005
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -795,5 +796,6 @@ end
 
 return setmetatable({
     new = SorinUI.new,
-    Theme = THEME
+    Theme = THEME,
+    _VERSION = SorinUI._VERSION
 }, SorinUI)
