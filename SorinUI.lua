@@ -1,9 +1,9 @@
 -- SorinUI.lua
--- Lightweight UI + notifications for SorinSoftware scripts
+-- Modern SorinSoftware UI library with window management, scrolling layout and notifications
 
 local SorinUI = {}
 SorinUI.__index = SorinUI
-SorinUI._VERSION = 20241005
+SorinUI._VERSION = 20241006
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -12,18 +12,25 @@ local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
 local THEME = {
-    Background = Color3.fromRGB(25, 24, 36),
-    Accent = Color3.fromRGB(140, 120, 255),
-    AccentDark = Color3.fromRGB(95, 82, 170),
-    AccentLight = Color3.fromRGB(180, 170, 255),
-    Text = Color3.fromRGB(235, 235, 245),
-    SubText = Color3.fromRGB(170, 170, 190),
-    Stroke = Color3.fromRGB(45, 45, 65),
-    Notification = Color3.fromRGB(30, 28, 44)
+    Background = Color3.fromRGB(24, 25, 35),
+    Accent = Color3.fromRGB(125, 105, 255),
+    AccentDark = Color3.fromRGB(88, 75, 185),
+    AccentLight = Color3.fromRGB(170, 160, 255),
+    Surface = Color3.fromRGB(32, 33, 45),
+    Card = Color3.fromRGB(36, 38, 50),
+    Text = Color3.fromRGB(235, 236, 245),
+    SubText = Color3.fromRGB(170, 173, 190),
+    Stroke = Color3.fromRGB(48, 50, 70),
+    Notification = Color3.fromRGB(30, 31, 43),
+    Shadow = Color3.fromRGB(18, 18, 26)
 }
 
-local HEADER_HEIGHT = 40
+local HEADER_HEIGHT = 42
+local WINDOW_MIN_HEIGHT = HEADER_HEIGHT + 26
 
+---------------------------------------------------------------------
+-- Utility
+---------------------------------------------------------------------
 local function getGuiParent()
     if gethui then
         local ui = gethui()
@@ -87,59 +94,74 @@ local function makeDraggable(frame, dragHandle)
     end)
 end
 
-local function createShadow(parent)
-    local shadow = Instance.new("ImageLabel")
-    shadow.Name = "Shadow"
-    shadow.AnchorPoint = Vector2.new(0.5, 0.5)
-    shadow.Position = UDim2.fromScale(0.5, 0.5)
-    shadow.BackgroundTransparency = 1
-    shadow.Image = "rbxassetid://5028857084"
-    shadow.ImageTransparency = 0.25
-    shadow.ScaleType = Enum.ScaleType.Slice
-    shadow.SliceCenter = Rect.new(24, 24, 276, 276)
-    shadow.Size = parent.Size + UDim2.new(0, 40, 0, 40)
-    shadow.ZIndex = parent.ZIndex - 1
-    shadow.Visible = parent.Visible
-    shadow.Parent = parent
-    return shadow
+local function tween(object, goal, time, style, direction)
+    local info = TweenInfo.new(time or 0.2, style or Enum.EasingStyle.Quad, direction or Enum.EasingDirection.Out)
+    local animation = TweenService:Create(object, info, goal)
+    animation:Play()
+    return animation
 end
 
-local function createStroke(parent)
+local function createIconButton(parent, icon)
+    local btn = Instance.new("TextButton")
+    btn.BackgroundTransparency = 1
+    btn.Size = UDim2.new(0, 26, 0, 26)
+    btn.Text = icon
+    btn.TextSize = 20
+    btn.Font = Enum.Font.GothamBold
+    btn.TextColor3 = THEME.Text
+    btn.Parent = parent
+    return btn
+end
+
+local function createStroke(parent, thickness)
     local stroke = Instance.new("UIStroke")
     stroke.Color = THEME.Stroke
-    stroke.Thickness = 1
+    stroke.Thickness = thickness or 1
     stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     stroke.Parent = parent
     return stroke
 end
 
-local function createRow(container, height)
+local function createCard(parent)
     local frame = Instance.new("Frame")
-    frame.BackgroundColor3 = THEME.Background
+    frame.BackgroundColor3 = THEME.Card
     frame.BorderSizePixel = 0
-    frame.Size = UDim2.new(1, 0, 0, height or 36)
-    frame.Parent = container
-
-    createStroke(frame)
-
+    frame.Parent = parent
+    createStroke(frame, 1)
     local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 6)
+    corner.CornerRadius = UDim.new(0, 8)
     corner.Parent = frame
-
     return frame
 end
 
-local function createLabel(parent, text)
+local function createLabel(parent, text, size, font)
     local label = Instance.new("TextLabel")
     label.BackgroundTransparency = 1
-    label.Font = Enum.Font.GothamSemibold
-    label.TextColor3 = THEME.Text
-    label.TextSize = 14
     label.Text = text or ""
+    label.TextColor3 = THEME.Text
+    label.Font = font or Enum.Font.GothamSemibold
+    label.TextSize = size or 16
     label.TextXAlignment = Enum.TextXAlignment.Left
     label.TextYAlignment = Enum.TextYAlignment.Center
     label.Parent = parent
     return label
+end
+
+local function createShadow(parent)
+    local shadow = Instance.new("ImageLabel")
+    shadow.Name = "Shadow"
+    shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+    shadow.Position = UDim2.fromScale(0.5, 0.5)
+    shadow.Size = UDim2.new(1, 40, 1, 40)
+    shadow.BackgroundTransparency = 1
+    shadow.Image = "rbxassetid://6014261993"
+    shadow.ImageColor3 = THEME.Shadow
+    shadow.ImageTransparency = 0.72
+    shadow.ScaleType = Enum.ScaleType.Slice
+    shadow.SliceCenter = Rect.new(49, 49, 450, 450)
+    shadow.ZIndex = parent.ZIndex - 1
+    shadow.Parent = parent
+    return shadow
 end
 
 local function round(number, step)
@@ -147,129 +169,116 @@ local function round(number, step)
     return math.round(number / step) * step
 end
 
-local function createSpinner(parent)
-    local spinner = Instance.new("Frame")
-    spinner.Name = "Spinner"
-    spinner.AnchorPoint = Vector2.new(0.5, 0.5)
-    spinner.Position = UDim2.fromScale(0.5, 0.5)
-    spinner.Size = UDim2.new(0, 32, 0, 32)
-    spinner.BackgroundTransparency = 1
-    spinner.Parent = parent
-
-    local circle = Instance.new("ImageLabel")
-    circle.BackgroundTransparency = 1
-    circle.Image = "rbxassetid://4483345878"
-    circle.ImageColor3 = THEME.Accent
-    circle.Size = UDim2.fromScale(1, 1)
-    circle.Parent = spinner
-
-    return spinner, circle
-end
-
-local function tween(object, goal, time, style, direction)
-    local info = TweenInfo.new(time or 0.2, style or Enum.EasingStyle.Quad, direction or Enum.EasingDirection.Out)
-    return TweenService:Create(object, info, goal)
-end
-
 ---------------------------------------------------------------------
 -- SorinUI window
 ---------------------------------------------------------------------
 function SorinUI.new(options)
     options = options or {}
+
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = options.Name or "SorinUI"
     screenGui.ResetOnSpawn = false
-    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
     protectGui(screenGui)
 
     local main = Instance.new("Frame")
     main.Name = "Window"
-    main.BackgroundColor3 = THEME.Background
+    main.BackgroundColor3 = THEME.Surface
     main.BorderSizePixel = 0
-    main.Size = options.Size or UDim2.new(0, 260, 0, 320)
-    main.Position = options.Position or UDim2.new(0.06, 0, 0.12, 0)
+    main.Size = options.Size or UDim2.new(0, 320, 0, 360)
+    main.Position = options.Position or UDim2.new(0.12, 0, 0.14, 0)
+    main.ClipsDescendants = true
     main.Parent = screenGui
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 10)
     corner.Parent = main
 
+    createStroke(main, 1.25)
     local shadow = createShadow(main)
 
     local header = Instance.new("Frame")
     header.Name = "Header"
-    header.Size = UDim2.new(1, 0, 0, HEADER_HEIGHT)
-    header.BackgroundColor3 = THEME.Accent
+    header.BackgroundColor3 = THEME.Surface:Lerp(THEME.Accent, 0.08)
     header.BorderSizePixel = 0
+    header.Size = UDim2.new(1, 0, 0, HEADER_HEIGHT)
     header.Parent = main
+
+    local headerStroke = createStroke(header, 1)
+    headerStroke.Color = THEME.Surface:Lerp(THEME.Stroke, 0.5)
 
     local headerCorner = Instance.new("UICorner")
     headerCorner.CornerRadius = UDim.new(0, 10)
     headerCorner.Parent = header
 
-    local headerLabel = createLabel(header, options.Title or "Sorin UI")
-    headerLabel.Size = UDim2.new(1, -70, 1, 0)
-    headerLabel.Position = UDim2.new(0, 12, 0, 0)
-    headerLabel.TextColor3 = THEME.Text
-    headerLabel.TextSize = 16
+    local titleLabel = createLabel(header, options.Title or "Sorin Window", 17, Enum.Font.GothamSemibold)
+    titleLabel.Position = UDim2.new(0, 16, 0, 0)
+    titleLabel.Size = UDim2.new(1, -120, 1, 0)
+    titleLabel.TextColor3 = THEME.Text
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    local buttonContainer = Instance.new("Frame")
-    buttonContainer.BackgroundTransparency = 1
-    buttonContainer.Size = UDim2.new(0, 64, 1, 0)
-    buttonContainer.Position = UDim2.new(1, -66, 0, 0)
-    buttonContainer.Parent = header
+    local iconBar = Instance.new("Frame")
+    iconBar.BackgroundTransparency = 1
+    iconBar.Position = UDim2.new(1, -46, 0, 0)
+    iconBar.Size = UDim2.new(0, 46, 1, 0)
+    iconBar.Parent = header
 
-    local buttonLayout = Instance.new("UIListLayout")
-    buttonLayout.FillDirection = Enum.FillDirection.Horizontal
-    buttonLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-    buttonLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    buttonLayout.Padding = UDim.new(0, 6)
-    buttonLayout.Parent = buttonContainer
+    local iconLayout = Instance.new("UIListLayout")
+    iconLayout.FillDirection = Enum.FillDirection.Horizontal
+    iconLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    iconLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+    iconLayout.Padding = UDim.new(0, 6)
+    iconLayout.Parent = iconBar
 
-    local function createHeaderButton(text)
-        local btn = Instance.new("TextButton")
-        btn.BackgroundTransparency = 1
-        btn.Size = UDim2.new(0, 24, 0, 24)
-        btn.Text = text
-        btn.TextSize = 20
-        btn.Font = Enum.Font.GothamBold
-        btn.TextColor3 = THEME.Text
-        btn.Parent = buttonContainer
-        return btn
-    end
-
-    local minimizeButton = createHeaderButton("-")
-    minimizeButton.TextSize = 22
-    local closeButton = createHeaderButton("X")
+    local minimizeButton = createIconButton(iconBar, "-")
+    minimizeButton.TextSize = 24
 
     local body = Instance.new("Frame")
     body.Name = "Body"
     body.BackgroundTransparency = 1
-    body.Position = UDim2.new(0, 12, 0, HEADER_HEIGHT + 8)
-    body.Size = UDim2.new(1, -24, 1, -(HEADER_HEIGHT + 20))
+    body.Position = UDim2.new(0, 14, 0, HEADER_HEIGHT + 6)
+    body.Size = UDim2.new(1, -28, 1, -(HEADER_HEIGHT + 20))
     body.Parent = main
 
-    local contentContainer = Instance.new("Frame")
-    contentContainer.Name = "Content"
-    contentContainer.BackgroundTransparency = 1
-    contentContainer.Size = UDim2.new(1, 0, 1, 0)
-    contentContainer.Parent = body
+    local scroll = Instance.new("ScrollingFrame")
+    scroll.Name = "Scroll"
+    scroll.BackgroundColor3 = THEME.Surface
+    scroll.BorderSizePixel = 0
+    scroll.Size = UDim2.new(1, 0, 1, 0)
+    scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    scroll.ScrollBarThickness = 5
+    scroll.ScrollBarImageColor3 = THEME.Accent
+    scroll.ClipsDescendants = false
+    scroll.Parent = body
+
+    createStroke(scroll, 1)
+    local scrollCorner = Instance.new("UICorner")
+    scrollCorner.CornerRadius = UDim.new(0, 8)
+    scrollCorner.Parent = scroll
+
+    local padding = Instance.new("UIPadding")
+    padding.PaddingTop = UDim.new(0, 12)
+    padding.PaddingLeft = UDim.new(0, 12)
+    padding.PaddingRight = UDim.new(0, 12)
+    padding.PaddingBottom = UDim.new(0, 12)
+    padding.Parent = scroll
 
     local layout = Instance.new("UIListLayout")
     layout.FillDirection = Enum.FillDirection.Vertical
     layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
     layout.VerticalAlignment = Enum.VerticalAlignment.Top
-    layout.Padding = UDim.new(0, 8)
-    layout.Parent = contentContainer
+    layout.Padding = UDim.new(0, 10)
+    layout.Parent = scroll
 
     local notificationHost = Instance.new("Frame")
     notificationHost.Name = "Notifications"
     notificationHost.BackgroundTransparency = 1
-    notificationHost.Size = UDim2.new(0, 260, 1, 0)
+    notificationHost.Size = UDim2.new(0, 280, 1, 0)
     notificationHost.AnchorPoint = Vector2.new(1, 0)
     notificationHost.Position = UDim2.new(1, -10, 0, 10)
-    notificationHost.ZIndex = 50
+    notificationHost.ZIndex = 100
+    notificationHost.ClipsDescendants = false
     notificationHost.Parent = screenGui
 
     local notificationLayout = Instance.new("UIListLayout")
@@ -279,28 +288,6 @@ function SorinUI.new(options)
     notificationLayout.Padding = UDim.new(0, 8)
     notificationLayout.Parent = notificationHost
 
-    local loaderOverlay = Instance.new("Frame")
-    loaderOverlay.Name = "Loader"
-    loaderOverlay.BackgroundColor3 = Color3.fromRGB(12, 12, 18)
-    loaderOverlay.BackgroundTransparency = 0.15
-    loaderOverlay.Visible = options.LoaderEnabled ~= false
-    loaderOverlay.Size = UDim2.fromScale(1, 1)
-    loaderOverlay.Parent = body
-
-    local loaderCorner = Instance.new("UICorner")
-    loaderCorner.CornerRadius = UDim.new(0, 8)
-    loaderCorner.Parent = loaderOverlay
-
-    local spinnerFrame, spinnerImage = createSpinner(loaderOverlay)
-    spinnerImage.ImageTransparency = 0.1
-
-    local loaderLabel = createLabel(loaderOverlay, options.LoaderText or "Loading Sorin UI...")
-    loaderLabel.TextSize = 15
-    loaderLabel.TextColor3 = THEME.SubText
-    loaderLabel.Size = UDim2.new(1, 0, 0, 24)
-    loaderLabel.Position = UDim2.new(0, 0, 0.5, 24)
-    loaderLabel.TextXAlignment = Enum.TextXAlignment.Center
-
     local connections = {}
     local function connect(signal, fn)
         local conn = signal:Connect(fn)
@@ -308,50 +295,29 @@ function SorinUI.new(options)
         return conn
     end
 
+    makeDraggable(main, header)
+
     local self = setmetatable({
         _gui = screenGui,
         _main = main,
         _shadow = shadow,
         _header = header,
         _body = body,
-        _content = contentContainer,
+        _scroll = scroll,
         _layout = layout,
-        _loader = loaderOverlay,
-        _loaderLabel = loaderLabel,
-        _spinnerImage = spinnerImage,
-        _spinnerConnection = nil,
         _connections = connections,
         _destroyed = false,
         _minimized = false,
         _originalSize = main.Size,
-        _notificationHost = notificationHost
+        _notificationHost = notificationHost,
+        _headerButtons = {
+            Minimize = minimizeButton
+        }
     }, SorinUI)
-
-    if loaderOverlay.Visible then
-        self._spinnerConnection = connect(RunService.RenderStepped, function(dt)
-            if self._spinnerImage then
-                self._spinnerImage.Rotation = (self._spinnerImage.Rotation + 200 * dt) % 360
-            end
-        end)
-    end
-
-    makeDraggable(main, header)
-
-    closeButton.MouseButton1Click:Connect(function()
-        self:Destroy()
-    end)
 
     minimizeButton.MouseButton1Click:Connect(function()
         self:ToggleMinimize()
     end)
-
-    if loaderOverlay.Visible and options.AutoHideLoader ~= false then
-        task.delay(options.LoaderDuration or 1.0, function()
-            if not self._destroyed then
-                self:SetLoading(false)
-            end
-        end)
-    end
 
     return self
 end
@@ -368,108 +334,132 @@ function SorinUI:ToggleMinimize(state)
         state = not self._minimized
     end
 
-    state = state == true
-    if self._minimized == state then
+    local targetMinimized = state == true
+    if targetMinimized == self._minimized then
         return
     end
 
-    self._minimized = state
-    local targetSize = state and UDim2.new(self._originalSize.X.Scale, self._originalSize.X.Offset, 0, HEADER_HEIGHT + 12)
-        or self._originalSize
+    self._minimized = targetMinimized
 
-    local contentVisible = not state
-
-    if self._body.Visible ~= contentVisible then
-        self._body.Visible = contentVisible
+    if targetMinimized then
+        tween(self._main, {Size = UDim2.new(self._originalSize.X.Scale, self._originalSize.X.Offset, 0, WINDOW_MIN_HEIGHT)}, 0.18)
+    else
+        tween(self._main, {Size = self._originalSize}, 0.18)
     end
 
+    self._body.Visible = not targetMinimized
     if self._shadow then
-        self._shadow.Visible = not state
+        self._shadow.Visible = not targetMinimized
     end
-
-    tween(self._main, {Size = targetSize}, 0.2):Play()
 end
 
 function SorinUI:AddSection(title)
     assert(not self._destroyed, "Window destroyed")
-    local row = createRow(self._content, 34)
-    row.BackgroundTransparency = 0.2
-    row:FindFirstChildOfClass("UIStroke").Enabled = false
+    local card = createCard(self._scroll)
+    card.AutomaticSize = Enum.AutomaticSize.Y
+    card.Size = UDim2.new(1, -4, 0, 48)
 
-    local label = createLabel(row, title or "")
-    label.Size = UDim2.new(1, -12, 1, 0)
-    label.Position = UDim2.new(0, 6, 0, 0)
+    local padding = Instance.new("UIPadding")
+    padding.PaddingTop = UDim.new(0, 12)
+    padding.PaddingBottom = UDim.new(0, 12)
+    padding.PaddingLeft = UDim.new(0, 14)
+    padding.PaddingRight = UDim.new(0, 14)
+    padding.Parent = card
+
+    local label = createLabel(card, title or "Section", 16, Enum.Font.GothamBold)
+    label.Size = UDim2.new(1, 0, 0, 20)
+    label.TextColor3 = THEME.AccentLight
     label.TextXAlignment = Enum.TextXAlignment.Left
-    label.TextYAlignment = Enum.TextYAlignment.Center
-    label.TextSize = 15
-    label.Font = Enum.Font.GothamBold
 
-    return row
+    return card
 end
 
 function SorinUI:AddLabel(text)
     assert(not self._destroyed, "Window destroyed")
-    local row = createRow(self._content, 30)
-    row.BackgroundTransparency = 1
-    local stroke = row:FindFirstChildOfClass("UIStroke")
-    if stroke then
-        stroke.Enabled = false
-    end
-    local label = createLabel(row, text or "")
-    label.Size = UDim2.new(1, -12, 1, 0)
-    label.Position = UDim2.new(0, 6, 0, 0)
-    label.TextColor3 = THEME.SubText
-    label.TextXAlignment = Enum.TextXAlignment.Left
+    local card = createCard(self._scroll)
+    card.AutomaticSize = Enum.AutomaticSize.Y
+    card.Size = UDim2.new(1, -4, 0, 48)
+
+    local padding = Instance.new("UIPadding")
+    padding.PaddingTop = UDim.new(0, 10)
+    padding.PaddingBottom = UDim.new(0, 10)
+    padding.PaddingLeft = UDim.new(0, 14)
+    padding.PaddingRight = UDim.new(0, 14)
+    padding.Parent = card
+
+    local label = createLabel(card, text or "", 14, Enum.Font.Gotham)
     label.TextWrapped = true
-    label.TextSize = 13
+    label.TextColor3 = THEME.SubText
+    label.Size = UDim2.new(1, 0, 0, 18)
+    label.AutomaticSize = Enum.AutomaticSize.Y
+
     return label
 end
 
 function SorinUI:AddToggle(config)
     assert(not self._destroyed, "Window destroyed")
     config = config or {}
-    local row = createRow(self._content, 40)
 
-    local label = createLabel(row, config.Label or "Toggle")
-    label.Size = UDim2.new(1, -90, 1, 0)
-    label.Position = UDim2.new(0, 12, 0, 0)
+    local card = createCard(self._scroll)
+    card.Size = UDim2.new(1, -4, 0, 56)
 
-    local button = Instance.new("TextButton")
-    button.Name = "ToggleButton"
+    local padding = Instance.new("UIPadding")
+    padding.PaddingLeft = UDim.new(0, 16)
+    padding.PaddingRight = UDim.new(0, 16)
+    padding.Parent = card
+
+    local label = createLabel(card, config.Label or "Toggle")
+    label.Size = UDim2.new(1, -80, 1, 0)
+    label.TextColor3 = THEME.Text
+    label.TextXAlignment = Enum.TextXAlignment.Left
+
+    local button = Instance.new("Frame")
+    button.Name = "ToggleTrack"
     button.AnchorPoint = Vector2.new(1, 0.5)
-    button.Position = UDim2.new(1, -18, 0.5, 0)
-    button.Size = UDim2.new(0, 56, 0, 24)
+    button.Position = UDim2.new(1, -6, 0.5, 0)
+    button.Size = UDim2.new(0, 54, 0, 26)
     button.BackgroundColor3 = THEME.Stroke
     button.BorderSizePixel = 0
-    button.Text = ""
-    button.Parent = row
+    button.Parent = card
 
-    local buttonCorner = Instance.new("UICorner")
-    buttonCorner.CornerRadius = UDim.new(1, 0)
-    buttonCorner.Parent = button
+    local trackCorner = Instance.new("UICorner")
+    trackCorner.CornerRadius = UDim.new(1, 0)
+    trackCorner.Parent = button
 
     local knob = Instance.new("Frame")
     knob.Name = "Knob"
-    knob.BackgroundColor3 = THEME.Background
-    knob.BorderSizePixel = 0
     knob.Size = UDim2.new(0, 24, 0, 24)
-    knob.Position = UDim2.new(0, 0, 0, 0)
+    knob.Position = UDim2.new(0, 1, 0.5, -12)
+    knob.BackgroundColor3 = THEME.Surface
+    knob.BorderSizePixel = 0
     knob.Parent = button
 
     local knobCorner = Instance.new("UICorner")
     knobCorner.CornerRadius = UDim.new(1, 0)
     knobCorner.Parent = knob
 
+    local overlayButton = Instance.new("TextButton")
+    overlayButton.BackgroundTransparency = 1
+    overlayButton.Size = UDim2.new(1, 0, 1, 0)
+    overlayButton.Text = ""
+    overlayButton.Parent = button
+
     local state = config.Default == true
 
-    local function apply(value)
+    local function apply(value, instant)
         value = value == true
-        local goal = value and UDim2.new(1, -24, 0, 0) or UDim2.new(0, 0, 0, 0)
-        tween(knob, {Position = goal}, 0.12):Play()
-        tween(button, {BackgroundColor3 = value and THEME.Accent or THEME.Stroke}, 0.12):Play()
+        local goalPosition = value and UDim2.new(1, -25, 0.5, -12) or UDim2.new(0, 1, 0.5, -12)
+        local colorGoal = value and THEME.Accent or THEME.Stroke
+        if instant then
+            knob.Position = goalPosition
+            button.BackgroundColor3 = colorGoal
+        else
+            tween(knob, {Position = goalPosition}, 0.16)
+            tween(button, {BackgroundColor3 = colorGoal}, 0.16)
+        end
     end
 
-    apply(state)
+    apply(state, true)
 
     local toggle = {}
 
@@ -477,20 +467,20 @@ function SorinUI:AddToggle(config)
         return state
     end
 
-    function toggle:Set(value, suppressCallback)
+    function toggle:Set(value, suppress)
         value = value == true
         if state == value then
-            apply(state)
+            apply(state, true)
             return
         end
         state = value
         apply(state)
-        if config.Callback and not suppressCallback then
+        if config.Callback and not suppress then
             task.spawn(config.Callback, state)
         end
     end
 
-    button.MouseButton1Click:Connect(function()
+    overlayButton.MouseButton1Click:Connect(function()
         toggle:Set(not state)
     end)
 
@@ -500,21 +490,25 @@ end
 function SorinUI:AddButton(config)
     assert(not self._destroyed, "Window destroyed")
     config = config or {}
-    local row = createRow(self._content, 42)
+
+    local card = createCard(self._scroll)
+    card.Size = UDim2.new(1, -4, 0, 50)
 
     local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, -20, 1, -10)
-    button.Position = UDim2.new(0, 10, 0, 5)
     button.BackgroundColor3 = config.Color or THEME.AccentDark
     button.TextColor3 = THEME.Text
-    button.TextSize = 14
-    button.Text = config.Label or "Button"
+    button.TextSize = 15
     button.Font = Enum.Font.GothamSemibold
-    button.Parent = row
+    button.Text = config.Label or "Button"
+    button.Size = UDim2.new(1, -20, 1, -14)
+    button.Position = UDim2.new(0, 10, 0, 7)
+    button.Parent = card
 
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, 8)
     corner.Parent = button
+
+    createStroke(button, 1).Color = (config.Color or THEME.AccentDark):Lerp(THEME.Text, 0.1)
 
     button.MouseButton1Click:Connect(function()
         if config.Callback then
@@ -539,30 +533,25 @@ function SorinUI:AddSlider(config)
     default = math.clamp(default, min, max)
     default = round(default - min, step) + min
 
-    local row = createRow(self._content, 56)
+    local card = createCard(self._scroll)
+    card.Size = UDim2.new(1, -4, 0, 82)
 
-    local label = createLabel(row, config.Label or "Slider")
-    label.Size = UDim2.new(1, -12, 0, 24)
-    label.Position = UDim2.new(0, 12, 0, 4)
-    label.TextYAlignment = Enum.TextYAlignment.Top
+    local title = createLabel(card, config.Label or "Slider", 15)
+    title.Position = UDim2.new(0, 14, 0, 12)
+    title.Size = UDim2.new(1, -28, 0, 20)
 
-    local valueLabel = Instance.new("TextLabel")
-    valueLabel.BackgroundTransparency = 1
-    valueLabel.Font = Enum.Font.Gotham
-    valueLabel.TextSize = 12
-    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    local valueLabel = createLabel(card, "", 13, Enum.Font.Gotham)
     valueLabel.TextColor3 = THEME.SubText
-    valueLabel.Size = UDim2.new(1, -20, 0, 14)
-    valueLabel.Position = UDim2.new(0, 10, 0, 24)
-    valueLabel.Parent = row
+    valueLabel.Position = UDim2.new(0, 14, 0, 32)
+    valueLabel.Size = UDim2.new(1, -28, 0, 18)
 
     local track = Instance.new("Frame")
-    track.Name = "Track"
+    track.Name = "SliderTrack"
     track.BackgroundColor3 = THEME.Stroke
     track.BorderSizePixel = 0
-    track.Size = UDim2.new(1, -20, 0, 6)
-    track.Position = UDim2.new(0, 10, 0, 40)
-    track.Parent = row
+    track.Size = UDim2.new(1, -28, 0, 6)
+    track.Position = UDim2.new(0, 14, 0, 58)
+    track.Parent = card
 
     local trackCorner = Instance.new("UICorner")
     trackCorner.CornerRadius = UDim.new(1, 0)
@@ -579,14 +568,27 @@ function SorinUI:AddSlider(config)
     fillCorner.CornerRadius = UDim.new(1, 0)
     fillCorner.Parent = fill
 
+    local knob = Instance.new("Frame")
+    knob.Name = "Knob"
+    knob.Size = UDim2.new(0, 16, 0, 16)
+    knob.AnchorPoint = Vector2.new(0.5, 0.5)
+    knob.Position = UDim2.new(0, 0, 0.5, 0)
+    knob.BackgroundColor3 = THEME.Surface
+    knob.BorderSizePixel = 0
+    knob.Parent = track
+
+    local knobCorner = Instance.new("UICorner")
+    knobCorner.CornerRadius = UDim.new(1, 0)
+    knobCorner.Parent = knob
+
     local dragging = false
     local value = default
 
-    local function formatValue(num)
+    local function formatValue(v)
         if config.ShowDecimal then
-            return string.format("%.2f", num)
+            return string.format("%.2f", v)
         end
-        return tostring(num)
+        return tostring(v)
     end
 
     local function updateVisual()
@@ -595,10 +597,11 @@ function SorinUI:AddSlider(config)
             alpha = 0
         end
         fill.Size = UDim2.new(alpha, 0, 1, 0)
+        knob.Position = UDim2.new(alpha, 0, 0.5, 0)
         valueLabel.Text = string.format("%s (%s)", config.Label or "Slider", formatValue(value))
     end
 
-    local function setValue(newValue, suppressCallback)
+    local function setValue(newValue, suppress)
         newValue = math.clamp(newValue, min, max)
         newValue = round(newValue - min, step) + min
         if newValue == value then
@@ -607,7 +610,7 @@ function SorinUI:AddSlider(config)
         end
         value = newValue
         updateVisual()
-        if config.Callback and not suppressCallback then
+        if config.Callback and not suppress then
             task.spawn(config.Callback, value)
         end
     end
@@ -615,6 +618,7 @@ function SorinUI:AddSlider(config)
     local function valueFromX(x)
         local absPos = track.AbsolutePosition.X
         local absSize = track.AbsoluteSize.X
+        if absSize == 0 then return min end
         local ratio = math.clamp((x - absPos) / absSize, 0, 1)
         return min + (max - min) * ratio
     end
@@ -646,13 +650,11 @@ function SorinUI:AddSlider(config)
     updateVisual()
 
     local slider = {}
-
     function slider:Get()
         return value
     end
-
-    function slider:Set(newValue, suppressCallback)
-        setValue(newValue, suppressCallback)
+    function slider:Set(newValue, suppress)
+        setValue(newValue, suppress)
     end
 
     return slider
@@ -668,76 +670,56 @@ function SorinUI:Notify(config)
     container.Size = UDim2.new(1, 0, 0, 0)
     container.Parent = self._notificationHost
 
-    local holder = Instance.new("Frame")
-    holder.AutomaticSize = Enum.AutomaticSize.Y
-    holder.Size = UDim2.new(1, -8, 0, 0)
-    holder.Position = UDim2.new(0, 8, 0, 0)
-    holder.BackgroundColor3 = THEME.Notification
-    holder.BorderSizePixel = 0
-    holder.Parent = container
+    local card = createCard(container)
+    card.AutomaticSize = Enum.AutomaticSize.Y
+    card.Size = UDim2.new(1, -6, 0, 0)
 
-    createStroke(holder)
+    local padding = Instance.new("UIPadding")
+    padding.PaddingTop = UDim.new(0, 10)
+    padding.PaddingBottom = UDim.new(0, 10)
+    padding.PaddingLeft = UDim.new(0, 14)
+    padding.PaddingRight = UDim.new(0, 14)
+    padding.Parent = card
 
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 8)
-    corner.Parent = holder
+    local titleLabel = createLabel(card, config.Title or "Sorin Notification", 15, Enum.Font.GothamSemibold)
+    titleLabel.Size = UDim2.new(1, -26, 0, 20)
 
-    local titleLabel = createLabel(holder, config.Title or "Sorin Notification")
-    titleLabel.TextSize = 15
-    titleLabel.Position = UDim2.new(0, 10, 0, 6)
-    titleLabel.Size = UDim2.new(1, -40, 0, 20)
+    local bodyLabel = createLabel(card, config.Text or "", 13, Enum.Font.Gotham)
+    bodyLabel.TextColor3 = THEME.SubText
+    bodyLabel.TextWrapped = true
+    bodyLabel.AutomaticSize = Enum.AutomaticSize.Y
+    bodyLabel.Size = UDim2.new(1, 0, 0, 18)
+    bodyLabel.Position = UDim2.new(0, 0, 0, 22)
 
-    local messageLabel = Instance.new("TextLabel")
-    messageLabel.BackgroundTransparency = 1
-    messageLabel.Font = Enum.Font.Gotham
-    messageLabel.TextColor3 = THEME.SubText
-    messageLabel.TextSize = 13
-    messageLabel.TextXAlignment = Enum.TextXAlignment.Left
-    messageLabel.TextYAlignment = Enum.TextYAlignment.Top
-    messageLabel.TextWrapped = true
-    messageLabel.AutomaticSize = Enum.AutomaticSize.Y
-    messageLabel.Position = UDim2.new(0, 10, 0, 28)
-    messageLabel.Size = UDim2.new(1, -20, 0, 0)
-    messageLabel.Text = config.Text or ""
-    messageLabel.Parent = holder
-
-    local closeButton = Instance.new("TextButton")
-    closeButton.BackgroundTransparency = 1
-    closeButton.Text = "X"
+    local closeButton = createIconButton(card, "X")
     closeButton.TextSize = 18
-    closeButton.Font = Enum.Font.GothamBold
-    closeButton.TextColor3 = THEME.SubText
-    closeButton.Size = UDim2.new(0, 24, 0, 24)
-    closeButton.Position = UDim2.new(1, -30, 0, 2)
-    closeButton.Parent = holder
+    closeButton.AnchorPoint = Vector2.new(1, 0)
+    closeButton.Position = UDim2.new(1, 0, 0, 0)
 
-    holder.ClipsDescendants = true
-    holder.Size = UDim2.new(1, -8, 0, 0)
-    holder.Position = UDim2.new(0, 8, 0, -10)
-    holder.BackgroundTransparency = 1
-    messageLabel.TextTransparency = 1
+    card.ClipsDescendants = true
+    card.Position = UDim2.new(0, -20, 0, 0)
+    card.BackgroundTransparency = 1
     titleLabel.TextTransparency = 1
+    bodyLabel.TextTransparency = 1
 
-    tween(holder, {Position = UDim2.new(0, 8, 0, 0), BackgroundTransparency = 0}, 0.18, Enum.EasingStyle.Quart):Play()
-    tween(titleLabel, {TextTransparency = 0}, 0.18):Play()
-    tween(messageLabel, {TextTransparency = 0}, 0.18):Play()
+    tween(card, {Position = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 0}, 0.18, Enum.EasingStyle.Quart)
+    tween(titleLabel, {TextTransparency = 0}, 0.2)
+    tween(bodyLabel, {TextTransparency = 0}, 0.2)
 
     local dismissed = false
-
     local function dismiss()
         if dismissed then
             return
         end
         dismissed = true
-        local fade = tween(holder, {Position = UDim2.new(0, 8, 0, -10), BackgroundTransparency = 1}, 0.15)
-        tween(titleLabel, {TextTransparency = 1}, 0.15):Play()
-        tween(messageLabel, {TextTransparency = 1}, 0.15):Play()
-        fade.Completed:Wait()
+        tween(titleLabel, {TextTransparency = 1}, 0.15)
+        tween(bodyLabel, {TextTransparency = 1}, 0.15)
+        local anim = tween(card, {Position = UDim2.new(0, 0, 0, -10), BackgroundTransparency = 1}, 0.15)
+        anim.Completed:Wait()
         container:Destroy()
     end
 
     closeButton.MouseButton1Click:Connect(dismiss)
-
     if duration > 0 then
         task.delay(duration, function()
             if not dismissed then
@@ -751,30 +733,16 @@ function SorinUI:Notify(config)
     }
 end
 
-function SorinUI:SetLoading(state, text)
-    if self._destroyed or not self._loader then
-        return
-    end
-    local shouldShow = state == true
-    if text and self._loaderLabel then
-        self._loaderLabel.Text = text
-    end
+function SorinUI:GetHeaderButtons()
+    return self._headerButtons
+end
 
-    self._loader.Visible = shouldShow
+function SorinUI:GetMainFrame()
+    return self._main
+end
 
-    if self._spinnerConnection then
-        self._spinnerConnection:Disconnect()
-        self._spinnerConnection = nil
-    end
-
-    if shouldShow and self._spinnerImage then
-        self._spinnerImage.Rotation = 0
-        self._spinnerConnection = RunService.RenderStepped:Connect(function(dt)
-            if self._spinnerImage then
-                self._spinnerImage.Rotation = (self._spinnerImage.Rotation + 200 * dt) % 360
-            end
-        end)
-    end
+function SorinUI:GetGui()
+    return self._gui
 end
 
 function SorinUI:Destroy()
@@ -782,10 +750,6 @@ function SorinUI:Destroy()
         return
     end
     self._destroyed = true
-    if self._spinnerConnection then
-        self._spinnerConnection:Disconnect()
-        self._spinnerConnection = nil
-    end
     for _, conn in ipairs(self._connections) do
         conn:Disconnect()
     end
