@@ -26,7 +26,7 @@ local THEME = {
 }
 
 local HEADER_HEIGHT = 42
-local WINDOW_MIN_HEIGHT = HEADER_HEIGHT + 26
+local WINDOW_MIN_HEIGHT = HEADER_HEIGHT + 12
 
 ---------------------------------------------------------------------
 -- Utility
@@ -242,23 +242,18 @@ function SorinUI.new(options)
 
     local scroll = Instance.new("ScrollingFrame")
     scroll.Name = "Scroll"
-    scroll.BackgroundColor3 = THEME.Surface
+    scroll.BackgroundTransparency = 1
     scroll.BorderSizePixel = 0
     scroll.Size = UDim2.new(1, 0, 1, 0)
     scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
     scroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-    scroll.ScrollBarThickness = 5
+    scroll.ScrollBarThickness = 4
     scroll.ScrollBarImageColor3 = THEME.Accent
     scroll.ClipsDescendants = false
     scroll.Parent = body
 
-    createStroke(scroll, 1)
-    local scrollCorner = Instance.new("UICorner")
-    scrollCorner.CornerRadius = UDim.new(0, 8)
-    scrollCorner.Parent = scroll
-
     local padding = Instance.new("UIPadding")
-    padding.PaddingTop = UDim.new(0, 12)
+    padding.PaddingTop = UDim.new(0, 8)
     padding.PaddingLeft = UDim.new(0, 12)
     padding.PaddingRight = UDim.new(0, 12)
     padding.PaddingBottom = UDim.new(0, 12)
@@ -266,7 +261,7 @@ function SorinUI.new(options)
 
     local layout = Instance.new("UIListLayout")
     layout.FillDirection = Enum.FillDirection.Vertical
-    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
     layout.VerticalAlignment = Enum.VerticalAlignment.Top
     layout.Padding = UDim.new(0, 10)
     layout.Parent = scroll
@@ -357,7 +352,7 @@ function SorinUI:AddSection(title)
     assert(not self._destroyed, "Window destroyed")
     local card = createCard(self._scroll)
     card.AutomaticSize = Enum.AutomaticSize.Y
-    card.Size = UDim2.new(1, -4, 0, 48)
+    card.Size = UDim2.new(1, -24, 0, 48)
 
     local padding = Instance.new("UIPadding")
     padding.PaddingTop = UDim.new(0, 12)
@@ -378,7 +373,7 @@ function SorinUI:AddLabel(text)
     assert(not self._destroyed, "Window destroyed")
     local card = createCard(self._scroll)
     card.AutomaticSize = Enum.AutomaticSize.Y
-    card.Size = UDim2.new(1, -4, 0, 48)
+    card.Size = UDim2.new(1, -24, 0, 48)
 
     local padding = Instance.new("UIPadding")
     padding.PaddingTop = UDim.new(0, 10)
@@ -401,7 +396,7 @@ function SorinUI:AddToggle(config)
     config = config or {}
 
     local card = createCard(self._scroll)
-    card.Size = UDim2.new(1, -4, 0, 56)
+    card.Size = UDim2.new(1, -24, 0, 58)
 
     local padding = Instance.new("UIPadding")
     padding.PaddingLeft = UDim.new(0, 16)
@@ -416,7 +411,7 @@ function SorinUI:AddToggle(config)
     local button = Instance.new("Frame")
     button.Name = "ToggleTrack"
     button.AnchorPoint = Vector2.new(1, 0.5)
-    button.Position = UDim2.new(1, -6, 0.5, 0)
+    button.Position = UDim2.new(1, -4, 0.5, 0)
     button.Size = UDim2.new(0, 54, 0, 26)
     button.BackgroundColor3 = THEME.Stroke
     button.BorderSizePixel = 0
@@ -492,7 +487,7 @@ function SorinUI:AddButton(config)
     config = config or {}
 
     local card = createCard(self._scroll)
-    card.Size = UDim2.new(1, -4, 0, 50)
+    card.Size = UDim2.new(1, -24, 0, 56)
 
     local button = Instance.new("TextButton")
     button.BackgroundColor3 = config.Color or THEME.AccentDark
@@ -500,8 +495,8 @@ function SorinUI:AddButton(config)
     button.TextSize = 15
     button.Font = Enum.Font.GothamSemibold
     button.Text = config.Label or "Button"
-    button.Size = UDim2.new(1, -20, 1, -14)
-    button.Position = UDim2.new(0, 10, 0, 7)
+    button.Size = UDim2.new(1, -24, 1, -16)
+    button.Position = UDim2.new(0, 12, 0, 8)
     button.Parent = card
 
     local corner = Instance.new("UICorner")
@@ -534,23 +529,23 @@ function SorinUI:AddSlider(config)
     default = round(default - min, step) + min
 
     local card = createCard(self._scroll)
-    card.Size = UDim2.new(1, -4, 0, 82)
+    card.Size = UDim2.new(1, -24, 0, 96)
 
     local title = createLabel(card, config.Label or "Slider", 15)
-    title.Position = UDim2.new(0, 14, 0, 12)
-    title.Size = UDim2.new(1, -28, 0, 20)
+    title.Position = UDim2.new(0, 16, 0, 14)
+    title.Size = UDim2.new(1, -32, 0, 20)
 
     local valueLabel = createLabel(card, "", 13, Enum.Font.Gotham)
     valueLabel.TextColor3 = THEME.SubText
-    valueLabel.Position = UDim2.new(0, 14, 0, 32)
-    valueLabel.Size = UDim2.new(1, -28, 0, 18)
+    valueLabel.Position = UDim2.new(0, 16, 0, 36)
+    valueLabel.Size = UDim2.new(1, -32, 0, 18)
 
     local track = Instance.new("Frame")
     track.Name = "SliderTrack"
     track.BackgroundColor3 = THEME.Stroke
     track.BorderSizePixel = 0
-    track.Size = UDim2.new(1, -28, 0, 6)
-    track.Position = UDim2.new(0, 14, 0, 58)
+    track.Size = UDim2.new(1, -32, 0, 6)
+    track.Position = UDim2.new(0, 16, 0, 64)
     track.Parent = card
 
     local trackCorner = Instance.new("UICorner")
@@ -598,7 +593,7 @@ function SorinUI:AddSlider(config)
         end
         fill.Size = UDim2.new(alpha, 0, 1, 0)
         knob.Position = UDim2.new(alpha, 0, 0.5, 0)
-        valueLabel.Text = string.format("%s (%s)", config.Label or "Slider", formatValue(value))
+        valueLabel.Text = formatValue(value)
     end
 
     local function setValue(newValue, suppress)
