@@ -450,10 +450,8 @@ function SorinCoreInterface:CreateWindow(opts)
     -- visibility toggle via key
     if toggleKey then
         window._toggleConnection = UserInputService.InputBegan:Connect(function(input, gp)
-            if gp then
-                return
-            end
-            if input.KeyCode == toggleKey then
+            if input.UserInputType == Enum.UserInputType.Keyboard
+                and input.KeyCode == toggleKey then
                 window:SetVisible(not window:GetVisible())
             end
         end)
@@ -487,6 +485,13 @@ function WindowClass:SetVisible(state)
     if not self._frame then
         return
     end
+
+    -- if we are explicitly trying to show the window, make sure any
+    -- leftover loading overlay is hidden so it cannot cover the hub
+    if state and self._loadingFrame and self._loadingFrame.Visible then
+        self._loadingFrame.Visible = false
+    end
+
     local wasVisible = self._frame.Visible
     self._frame.Visible = state
 
