@@ -1017,6 +1017,257 @@ function TabClass:CreateToggle(opts)
     }
 end
 
+function TabClass:CreateSlider(opts)
+    opts = opts or {}
+    local name = tostring(opts.Name or "Slider")
+    local description = opts.Description and tostring(opts.Description) or ""
+    local callback = typeof(opts.Callback) == "function" and opts.Callback or nil
+
+    local iconName = opts.Icon
+    local iconSource = opts.IconSource or opts.ImageSource or "Material"
+    local iconAsset = resolveIconAsset(iconName, iconSource)
+
+    local min = tonumber(opts.Min) or 0
+    local max = tonumber(opts.Max) or 100
+    if max <= min then
+        max = min + 1
+    end
+    local step = tonumber(opts.Step) or 1
+    if step <= 0 then
+        step = 1
+    end
+
+    local default = opts.CurrentValue or opts.Default or min
+
+    local function clampToRange(v)
+        v = tonumber(v) or min
+        if v < min then
+            v = min
+        elseif v > max then
+            v = max
+        end
+        local scaled = (v - min) / step
+        local rounded = math.floor(scaled + 0.5)
+        return min + rounded * step
+    end
+
+    local value = clampToRange(default)
+
+    local height = description ~= "" and 64 or 48
+
+    local frame = Instance.new("Frame")
+    frame.Name = "Slider_" .. name
+    frame.BackgroundColor3 = Theme.Button
+    frame.BorderSizePixel = 0
+    frame.Size = UDim2.new(1, 0, 0, height)
+    frame.Parent = self._content
+    createRound(frame, 6)
+
+    local hitbox = Instance.new("TextButton")
+    hitbox.Name = "Hitbox"
+    hitbox.BackgroundTransparency = 1
+    hitbox.Size = UDim2.new(1, 0, 1, 0)
+    hitbox.Font = Enum.Font.Gotham
+    hitbox.Text = ""
+    hitbox.Parent = frame
+
+    local iconOffset = 10
+
+    if iconAsset then
+        local iconImage = Instance.new("ImageLabel")
+        iconImage.Name = "Icon"
+        iconImage.BackgroundTransparency = 1
+        iconImage.Size = UDim2.new(0, 18, 0, 18)
+        iconImage.Position = UDim2.new(0, 10, 0, 6)
+        iconImage.Image = iconAsset
+        iconImage.ImageColor3 = Theme.TextDim
+        iconImage.Parent = frame
+
+        iconOffset = 10 + 18 + 6
+    end
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "Title"
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Position = UDim2.new(0, iconOffset, 0, 4)
+    titleLabel.Size = UDim2.new(1, -iconOffset - 50, 0, 18)
+    titleLabel.Font = Enum.Font.GothamSemibold
+    titleLabel.TextSize = 14
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextColor3 = Theme.Text
+    titleLabel.Text = name
+    titleLabel.Parent = frame
+
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Name = "Value"
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.Position = UDim2.new(1, -46, 0, 4)
+    valueLabel.Size = UDim2.new(0, 36, 0, 18)
+    valueLabel.Font = Enum.Font.Gotham
+    valueLabel.TextSize = 13
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    valueLabel.TextColor3 = Theme.TextDim
+    valueLabel.Text = tostring(value)
+    valueLabel.Parent = frame
+
+    if description ~= "" then
+        local descLabel = Instance.new("TextLabel")
+        descLabel.Name = "Description"
+        descLabel.BackgroundTransparency = 1
+        descLabel.Position = UDim2.new(0, iconOffset, 0, 22)
+        descLabel.Size = UDim2.new(1, -iconOffset - 10, 0, 18)
+        descLabel.Font = Enum.Font.Gotham
+        descLabel.TextSize = 12
+        descLabel.TextXAlignment = Enum.TextXAlignment.Left
+        descLabel.TextColor3 = Theme.TextDim
+        descLabel.Text = description
+        descLabel.Parent = frame
+    end
+
+    local bar = Instance.new("Frame")
+    bar.Name = "Bar"
+    bar.BackgroundColor3 = Theme.Section
+    bar.BorderSizePixel = 0
+    bar.Size = UDim2.new(1, -20, 0, 6)
+    bar.AnchorPoint = Vector2.new(0, 1)
+    bar.Position = UDim2.new(0, 10, 1, -8)
+    bar.Parent = frame
+    createRound(bar, 3)
+
+    local fill = Instance.new("Frame")
+    fill.Name = "Fill"
+    fill.BackgroundColor3 = Theme.Accent
+    fill.BorderSizePixel = 0
+    fill.Size = UDim2.new(0, 0, 1, 0)
+    fill.Parent = bar
+    createRound(fill, 3)
+
+    local knob = Instance.new("Frame")
+    knob.Name = "Knob"
+    knob.BackgroundColor3 = Color3.new(1, 1, 1)
+    knob.BorderSizePixel = 0
+    knob.Size = UDim2.new(0, 12, 0, 12)
+    knob.AnchorPoint = Vector2.new(0.5, 0.5)
+    knob.Position = UDim2.new(0, 0, 0.5, 0)
+    knob.Parent = bar
+    createRound(knob, 6)
+
+    local dragging = false
+
+    local function applyVisual()
+        local range = max - min
+        local t = range > 0 and ((value - min) / range) or 0
+        t = math.clamp(t, 0, 1)
+
+        local barWidth = bar.AbsoluteSize.X
+        local knobX = t * barWidth
+
+        valueLabel.Text = tostring(value)
+
+        fill.Size = UDim2.new(t, 0, 1, 0)
+        knob.Position = UDim2.new(0, knobX, 0.5, 0)
+    end
+
+    applyVisual()
+
+    bar:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyVisual)
+
+    local function setValue(newValue, fromUser)
+        local clamped = clampToRange(newValue)
+        if clamped == value then
+            return
+        end
+        value = clamped
+        applyVisual()
+
+        if callback and fromUser then
+            task.spawn(function()
+                local ok, err = pcall(callback, value)
+                if not ok then
+                    SorinCoreInterface:Notify({
+                        Title = name,
+                        Content = "Slider error: " .. tostring(err),
+                        Type = "error",
+                    })
+                end
+            end)
+        end
+    end
+
+    local function updateFromInput(inputPosition)
+        local barPos = bar.AbsolutePosition.X
+        local barSize = bar.AbsoluteSize.X
+        if barSize <= 0 then
+            return
+        end
+
+        local relative = (inputPosition - barPos) / barSize
+        local range = max - min
+        local rawValue = min + range * math.clamp(relative, 0, 1)
+        setValue(rawValue, true)
+    end
+
+    local function beginDrag(input)
+        dragging = true
+        updateFromInput(input.Position.X)
+    end
+
+    local function endDrag(_input)
+        dragging = false
+    end
+
+    bar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            beginDrag(input)
+        end
+    end)
+
+    knob.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            beginDrag(input)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if not dragging then
+            return
+        end
+        if input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch then
+            updateFromInput(input.Position.X)
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            endDrag(input)
+        end
+    end)
+
+    hitbox.MouseEnter:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.ButtonHover })
+    end)
+
+    hitbox.MouseLeave:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.Button })
+    end)
+
+    return {
+        Frame = frame,
+        Set = function(_, options)
+            if options and options.CurrentValue ~= nil then
+                setValue(options.CurrentValue, false)
+            end
+        end,
+        Get = function()
+            return value
+        end,
+    }
+end
+
 ---------------------------------------------------------------------
 -- Public export
 ---------------------------------------------------------------------
