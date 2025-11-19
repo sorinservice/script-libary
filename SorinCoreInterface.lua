@@ -52,6 +52,16 @@ local function tween(instance, info, props)
     end
 end
 
+local function keyCodeToLabel(key)
+    if typeof(key) == "EnumItem" and key.EnumType == Enum.KeyCode then
+        return key.Name
+    end
+    if type(key) == "string" and key ~= "" then
+        return key
+    end
+    return "K"
+end
+
 ---------------------------------------------------------------------
 -- Theme
 ---------------------------------------------------------------------
@@ -364,6 +374,7 @@ function SorinCoreInterface:CreateWindow(opts)
     createRound(contentFrame, 8)
 
     local window = setmetatable({
+        _name = name,
         _frame = mainFrame,
         _tabBar = tabBar,
         _content = contentFrame,
@@ -380,6 +391,7 @@ function SorinCoreInterface:CreateWindow(opts)
         _loadingTitle = loadingTitle,
         _loadingSubtitle = loadingSubtitle,
         _loadingFrame = nil,
+        _hasShownWelcome = false,
     }, WindowClass)
 
     -- visibility toggle via key
@@ -422,7 +434,30 @@ function WindowClass:SetVisible(state)
     if not self._frame then
         return
     end
+    local wasVisible = self._frame.Visible
     self._frame.Visible = state
+
+    if state ~= wasVisible then
+        local title = self._name or "Sorin Core Hub"
+        local keyLabel = keyCodeToLabel(self._toggleKey)
+
+        if state then
+            if not self._hasShownWelcome then
+                self._hasShownWelcome = true
+                SorinCoreInterface:Notify({
+                    Title = title,
+                    Content = string.format("Welcome to %s. Press %s to hide/show the hub.", title, keyLabel),
+                    Type = "info",
+                })
+            end
+        else
+            SorinCoreInterface:Notify({
+                Title = title,
+                Content = string.format("Press %s to reopen the hub.", keyLabel),
+                Type = "info",
+            })
+        end
+    end
 end
 
 function WindowClass:GetVisible()
