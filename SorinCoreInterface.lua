@@ -62,6 +62,30 @@ local function keyCodeToLabel(key)
     return "K"
 end
 
+local function resolveIconAsset(iconName, sourceName)
+    if type(iconName) ~= "string" or iconName == "" then
+        return nil
+    end
+
+    local icons = SorinCoreInterface.Icons
+    if typeof(icons) ~= "table" then
+        return nil
+    end
+
+    local sourceKey = sourceName or "Material"
+    local sourceTable = icons[sourceKey]
+    if typeof(sourceTable) ~= "table" then
+        return nil
+    end
+
+    local asset = sourceTable[iconName]
+    if type(asset) ~= "string" or asset == "" then
+        return nil
+    end
+
+    return asset
+end
+
 ---------------------------------------------------------------------
 -- Theme
 ---------------------------------------------------------------------
@@ -612,10 +636,9 @@ end
 function WindowClass:CreateTab(opts)
     opts = opts or {}
     local name = tostring(opts.Name or "Tab")
-    local iconText = opts.Icon or ""
-    if typeof(iconText) ~= "string" then
-        iconText = ""
-    end
+    local iconName = opts.Icon
+    local iconSource = opts.IconSource or opts.ImageSource or "Material"
+    local iconAsset = resolveIconAsset(iconName, iconSource)
 
     local tabButton = Instance.new("TextButton")
     tabButton.Name = "TabButton_" .. name
@@ -627,9 +650,23 @@ function WindowClass:CreateTab(opts)
     tabButton.TextSize = 13
     tabButton.TextColor3 = Theme.TextDim
     tabButton.TextXAlignment = Enum.TextXAlignment.Left
-    tabButton.Text = iconText ~= "" and ("  " .. iconText .. "  " .. name) or ("  " .. name)
+    tabButton.Text = "  " .. name
     tabButton.Parent = self._tabBar
     createRound(tabButton, 6)
+
+    if iconAsset then
+        local iconImage = Instance.new("ImageLabel")
+        iconImage.Name = "Icon"
+        iconImage.BackgroundTransparency = 1
+        iconImage.Size = UDim2.new(0, 16, 0, 16)
+        iconImage.AnchorPoint = Vector2.new(0, 0.5)
+        iconImage.Position = UDim2.new(0, 8, 0.5, 0)
+        iconImage.Image = iconAsset
+        iconImage.ImageColor3 = Theme.TextDim
+        iconImage.Parent = tabButton
+
+        tabButton.Text = "      " .. name
+    end
 
     local content = Instance.new("ScrollingFrame")
     content.Name = "TabContent_" .. name
@@ -739,6 +776,9 @@ function TabClass:CreateButton(opts)
     local name = tostring(opts.Name or "Button")
     local description = opts.Description and tostring(opts.Description) or ""
     local callback = typeof(opts.Callback) == "function" and opts.Callback or nil
+    local iconName = opts.Icon
+    local iconSource = opts.IconSource or opts.ImageSource or "Material"
+    local iconAsset = resolveIconAsset(iconName, iconSource)
 
     local height = description ~= "" and 54 or 32
 
@@ -758,11 +798,26 @@ function TabClass:CreateButton(opts)
     button.Text = ""
     button.Parent = frame
 
+    local iconOffset = 10
+
+    if iconAsset then
+        local iconImage = Instance.new("ImageLabel")
+        iconImage.Name = "Icon"
+        iconImage.BackgroundTransparency = 1
+        iconImage.Size = UDim2.new(0, 18, 0, 18)
+        iconImage.Position = UDim2.new(0, 10, 0, 6)
+        iconImage.Image = iconAsset
+        iconImage.ImageColor3 = Theme.TextDim
+        iconImage.Parent = frame
+
+        iconOffset = 10 + 18 + 6
+    end
+
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Name = "Title"
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Position = UDim2.new(0, 10, 0, 4)
-    titleLabel.Size = UDim2.new(1, -20, 0, 18)
+    titleLabel.Position = UDim2.new(0, iconOffset, 0, 4)
+    titleLabel.Size = UDim2.new(1, -iconOffset - 10, 0, 18)
     titleLabel.Font = Enum.Font.GothamSemibold
     titleLabel.TextSize = 14
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -774,8 +829,8 @@ function TabClass:CreateButton(opts)
         local descLabel = Instance.new("TextLabel")
         descLabel.Name = "Description"
         descLabel.BackgroundTransparency = 1
-        descLabel.Position = UDim2.new(0, 10, 0, 22)
-        descLabel.Size = UDim2.new(1, -20, 0, 18)
+        descLabel.Position = UDim2.new(0, iconOffset, 0, 22)
+        descLabel.Size = UDim2.new(1, -iconOffset - 10, 0, 18)
         descLabel.Font = Enum.Font.Gotham
         descLabel.TextSize = 12
         descLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -816,6 +871,9 @@ function TabClass:CreateToggle(opts)
     local description = opts.Description and tostring(opts.Description) or ""
     local callback = typeof(opts.Callback) == "function" and opts.Callback or nil
     local state = opts.CurrentValue == true or opts.Default == true
+    local iconName = opts.Icon
+    local iconSource = opts.IconSource or opts.ImageSource or "Material"
+    local iconAsset = resolveIconAsset(iconName, iconSource)
 
     local height = description ~= "" and 54 or 32
 
@@ -835,11 +893,26 @@ function TabClass:CreateToggle(opts)
     hitbox.Text = ""
     hitbox.Parent = frame
 
+    local iconOffset = 10
+
+    if iconAsset then
+        local iconImage = Instance.new("ImageLabel")
+        iconImage.Name = "Icon"
+        iconImage.BackgroundTransparency = 1
+        iconImage.Size = UDim2.new(0, 18, 0, 18)
+        iconImage.Position = UDim2.new(0, 10, 0, 6)
+        iconImage.Image = iconAsset
+        iconImage.ImageColor3 = Theme.TextDim
+        iconImage.Parent = frame
+
+        iconOffset = 10 + 18 + 6
+    end
+
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Name = "Title"
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Position = UDim2.new(0, 10, 0, 4)
-    titleLabel.Size = UDim2.new(1, -80, 0, 18)
+    titleLabel.Position = UDim2.new(0, iconOffset, 0, 4)
+    titleLabel.Size = UDim2.new(1, -80 - iconOffset + 10, 0, 18)
     titleLabel.Font = Enum.Font.GothamSemibold
     titleLabel.TextSize = 14
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
@@ -851,8 +924,8 @@ function TabClass:CreateToggle(opts)
         local descLabel = Instance.new("TextLabel")
         descLabel.Name = "Description"
         descLabel.BackgroundTransparency = 1
-        descLabel.Position = UDim2.new(0, 10, 0, 22)
-        descLabel.Size = UDim2.new(1, -80, 0, 18)
+        descLabel.Position = UDim2.new(0, iconOffset, 0, 22)
+        descLabel.Size = UDim2.new(1, -80 - iconOffset + 10, 0, 18)
         descLabel.Font = Enum.Font.Gotham
         descLabel.TextSize = 12
         descLabel.TextXAlignment = Enum.TextXAlignment.Left
