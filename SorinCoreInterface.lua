@@ -12,6 +12,7 @@ SorinCoreInterface.__index = SorinCoreInterface
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
 
 local LocalPlayer = Players.LocalPlayer
 
@@ -233,12 +234,34 @@ function SorinCoreInterface:CreateWindow(opts)
     local subtitle = tostring(opts.Subtitle or "SorinSoftware Services")
     local toggleKey = opts.ToggleKey or Enum.KeyCode.K
 
+    -- optional loading overlay config
+    local loadingEnabled = opts.LoadingEnabled == true
+    local loadingTitle = tostring(opts.LoadingTitle or name)
+    local loadingSubtitle = tostring(opts.LoadingSubtitle or "Loading interface ...")
+
+    -- simple viewport-aware sizing (desktop + mobile)
+    local viewportX, viewportY = 1280, 720
+    do
+        local ok, cam = pcall(function()
+            return Workspace.CurrentCamera
+        end)
+        if ok and cam and cam.ViewportSize then
+            viewportX = cam.ViewportSize.X
+            viewportY = cam.ViewportSize.Y
+        end
+    end
+
+    local baseWidth, baseHeight = 620, 360
+    local width = math.min(baseWidth, math.floor(viewportX * 0.9))
+    local height = math.min(baseHeight, math.floor(viewportY * 0.8))
+
     -- root window frame
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "MainWindow"
-    mainFrame.Size = UDim2.new(0, 620, 0, 360)
-    mainFrame.Position = UDim2.new(0.5, -310, 0.5, -180)
+    mainFrame.Size = UDim2.new(0, width, 0, height)
+    mainFrame.Position = UDim2.new(0.5, -width / 2, 0.5, -height / 2)
     mainFrame.BackgroundColor3 = Theme.Background
+    mainFrame.BackgroundTransparency = 0.05
     mainFrame.BorderColor3 = Theme.Border
     mainFrame.BorderSizePixel = 1
     mainFrame.Active = true
@@ -247,19 +270,22 @@ function SorinCoreInterface:CreateWindow(opts)
     createRound(mainFrame, 8)
 
     -- top bar
+    local topBarHeight = 40
+
     local topBar = Instance.new("Frame")
     topBar.Name = "TopBar"
     topBar.BackgroundColor3 = Theme.Section
+    topBar.BackgroundTransparency = 0.05
     topBar.BorderSizePixel = 0
-    topBar.Size = UDim2.new(1, 0, 0, 32)
+    topBar.Size = UDim2.new(1, 0, 0, topBarHeight)
     topBar.Parent = mainFrame
     createRound(topBar, 8)
 
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Name = "Title"
     titleLabel.BackgroundTransparency = 1
-    titleLabel.Position = UDim2.new(0, 12, 0, 0)
-    titleLabel.Size = UDim2.new(1, -120, 1, 0)
+    titleLabel.Position = UDim2.new(0, 12, 0, 4)
+    titleLabel.Size = UDim2.new(1, -100, 0, 18)
     titleLabel.Font = Enum.Font.GothamSemibold
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     titleLabel.TextSize = 15
@@ -270,8 +296,8 @@ function SorinCoreInterface:CreateWindow(opts)
     local subtitleLabel = Instance.new("TextLabel")
     subtitleLabel.Name = "Subtitle"
     subtitleLabel.BackgroundTransparency = 1
-    subtitleLabel.Position = UDim2.new(0, 12, 0, 16)
-    subtitleLabel.Size = UDim2.new(1, -120, 0, 14)
+    subtitleLabel.Position = UDim2.new(0, 12, 0, 22)
+    subtitleLabel.Size = UDim2.new(1, -100, 0, 16)
     subtitleLabel.Font = Enum.Font.Gotham
     subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
     subtitleLabel.TextSize = 12
@@ -291,13 +317,26 @@ function SorinCoreInterface:CreateWindow(opts)
     closeButton.Text = "×"
     closeButton.Parent = topBar
 
+    -- minimize button
+    local minimizeButton = Instance.new("TextButton")
+    minimizeButton.Name = "Minimize"
+    minimizeButton.BackgroundTransparency = 1
+    minimizeButton.Position = UDim2.new(1, -52, 0, 0)
+    minimizeButton.Size = UDim2.new(0, 24, 1, 0)
+    minimizeButton.Font = Enum.Font.GothamSemibold
+    minimizeButton.TextSize = 16
+    minimizeButton.TextColor3 = Theme.TextDim
+    minimizeButton.Text = "–"
+    minimizeButton.Parent = topBar
+
     -- left tab bar
     local tabBar = Instance.new("Frame")
     tabBar.Name = "TabBar"
     tabBar.BackgroundColor3 = Theme.Section
+    tabBar.BackgroundTransparency = 0.08
     tabBar.BorderSizePixel = 0
-    tabBar.Position = UDim2.new(0, 0, 0, 32)
-    tabBar.Size = UDim2.new(0, 160, 1, -32)
+    tabBar.Position = UDim2.new(0, 0, 0, topBarHeight)
+    tabBar.Size = UDim2.new(0, 160, 1, -topBarHeight)
     tabBar.Parent = mainFrame
 
     local tabList = Instance.new("UIListLayout")
@@ -316,9 +355,10 @@ function SorinCoreInterface:CreateWindow(opts)
     local contentFrame = Instance.new("Frame")
     contentFrame.Name = "Content"
     contentFrame.BackgroundColor3 = Theme.Background
+    contentFrame.BackgroundTransparency = 0.05
     contentFrame.BorderSizePixel = 0
-    contentFrame.Position = UDim2.new(0, 160, 0, 32)
-    contentFrame.Size = UDim2.new(1, -160, 1, -32)
+    contentFrame.Position = UDim2.new(0, 160, 0, topBarHeight)
+    contentFrame.Size = UDim2.new(1, -160, 1, -topBarHeight)
     contentFrame.Parent = mainFrame
 
     createRound(contentFrame, 8)
@@ -331,6 +371,15 @@ function SorinCoreInterface:CreateWindow(opts)
         _activeTab = nil,
         _toggleConnection = nil,
         _toggleKey = toggleKey,
+        _minimized = false,
+        _storedSize = mainFrame.Size,
+        _storedContentVisible = true,
+        _storedTabVisible = true,
+        _minimizeButton = minimizeButton,
+        _loadingEnabled = loadingEnabled,
+        _loadingTitle = loadingTitle,
+        _loadingSubtitle = loadingSubtitle,
+        _loadingFrame = nil,
     }, WindowClass)
 
     -- visibility toggle via key
@@ -348,6 +397,18 @@ function SorinCoreInterface:CreateWindow(opts)
     closeButton.MouseButton1Click:Connect(function()
         window:SetVisible(false)
     end)
+
+    minimizeButton.MouseButton1Click:Connect(function()
+        window:SetMinimized(not window:GetMinimized())
+    end)
+
+    -- initial visibility / loading
+    if loadingEnabled then
+        mainFrame.Visible = false
+        window:SetLoading(true)
+    else
+        mainFrame.Visible = true
+    end
 
     return window
 end
@@ -368,6 +429,140 @@ function WindowClass:GetVisible()
     return self._frame and self._frame.Visible or false
 end
 
+function WindowClass:SetMinimized(state)
+    state = state and true or false
+    if not self._frame or self._minimized == state then
+        return
+    end
+
+    self._minimized = state
+
+    local frame = self._frame
+    local topHeight = 40
+
+    if state then
+        self._storedSize = frame.Size
+        if self._content then
+            self._storedContentVisible = self._content.Visible
+            self._content.Visible = false
+        end
+        if self._tabBar then
+            self._storedTabVisible = self._tabBar.Visible
+            self._tabBar.Visible = false
+        end
+
+        tween(frame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(frame.Size.X.Scale, frame.Size.X.Offset, 0, topHeight + 4),
+        })
+    else
+        tween(frame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = self._storedSize or frame.Size,
+        })
+
+        if self._content then
+            self._content.Visible = (self._storedContentVisible ~= false)
+        end
+        if self._tabBar then
+            self._tabBar.Visible = (self._storedTabVisible ~= false)
+        end
+    end
+
+    if self._minimizeButton then
+        self._minimizeButton.Text = self._minimized and "+" or "–"
+    end
+end
+
+function WindowClass:GetMinimized()
+    return self._minimized == true
+end
+
+function WindowClass:SetLoading(state)
+    state = state and true or false
+
+    if state then
+        ensureScreenGui()
+
+        if not self._loadingFrame then
+            local overlay = Instance.new("Frame")
+            overlay.Name = "SorinCore_Loading"
+            overlay.BackgroundColor3 = Color3.new(0, 0, 0)
+            overlay.BackgroundTransparency = 0.35
+            overlay.BorderSizePixel = 0
+            overlay.Size = UDim2.new(1, 0, 1, 0)
+            overlay.Position = UDim2.new(0, 0, 0, 0)
+            overlay.ZIndex = 40
+            overlay.Parent = screenGui
+
+            local card = Instance.new("Frame")
+            card.Name = "Card"
+            card.BackgroundColor3 = Theme.Section
+            card.BackgroundTransparency = 0.1
+            card.BorderSizePixel = 0
+            card.Size = UDim2.new(0, 260, 0, 90)
+            card.AnchorPoint = Vector2.new(0.5, 0.5)
+            card.Position = UDim2.new(0.5, 0, 0.5, 0)
+            card.ZIndex = 41
+            card.Parent = overlay
+            createRound(card, 8)
+
+            local titleLabel = Instance.new("TextLabel")
+            titleLabel.Name = "Title"
+            titleLabel.BackgroundTransparency = 1
+            titleLabel.Position = UDim2.new(0, 12, 0, 10)
+            titleLabel.Size = UDim2.new(1, -24, 0, 20)
+            titleLabel.Font = Enum.Font.GothamSemibold
+            titleLabel.TextSize = 16
+            titleLabel.TextColor3 = Theme.Text
+            titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+            titleLabel.ZIndex = 42
+            titleLabel.Text = self._loadingTitle or "Sorin Core Hub"
+            titleLabel.Parent = card
+
+            local subtitleLabel = Instance.new("TextLabel")
+            subtitleLabel.Name = "Subtitle"
+            subtitleLabel.BackgroundTransparency = 1
+            subtitleLabel.Position = UDim2.new(0, 12, 0, 32)
+            subtitleLabel.Size = UDim2.new(1, -24, 0, 18)
+            subtitleLabel.Font = Enum.Font.Gotham
+            subtitleLabel.TextSize = 13
+            subtitleLabel.TextColor3 = Theme.TextDim
+            subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+            subtitleLabel.ZIndex = 42
+            subtitleLabel.Text = self._loadingSubtitle or "Loading interface ..."
+            subtitleLabel.Parent = card
+
+            local bar = Instance.new("Frame")
+            bar.Name = "Bar"
+            bar.BackgroundColor3 = Theme.AccentSoft
+            bar.BackgroundTransparency = 0.3
+            bar.BorderSizePixel = 0
+            bar.Size = UDim2.new(1, -24, 0, 4)
+            bar.Position = UDim2.new(0, 12, 1, -16)
+            bar.ZIndex = 42
+            bar.Parent = card
+            createRound(bar, 2)
+
+            self._loadingFrame = overlay
+        end
+
+        self._loadingFrame.Visible = true
+        if self._frame then
+            self._frame.Visible = false
+        end
+    else
+        if self._loadingFrame then
+            self._loadingFrame.Visible = false
+        end
+        if self._frame then
+            self._frame.Visible = true
+        end
+    end
+end
+
+function WindowClass:FinishLoading()
+    self:SetLoading(false)
+end
+
 function WindowClass:Destroy()
     if self._toggleConnection then
         self._toggleConnection:Disconnect()
@@ -382,6 +577,10 @@ end
 function WindowClass:CreateTab(opts)
     opts = opts or {}
     local name = tostring(opts.Name or "Tab")
+    local iconText = opts.Icon or ""
+    if typeof(iconText) ~= "string" then
+        iconText = ""
+    end
 
     local tabButton = Instance.new("TextButton")
     tabButton.Name = "TabButton_" .. name
@@ -393,7 +592,7 @@ function WindowClass:CreateTab(opts)
     tabButton.TextSize = 13
     tabButton.TextColor3 = Theme.TextDim
     tabButton.TextXAlignment = Enum.TextXAlignment.Left
-    tabButton.Text = "  " .. name
+    tabButton.Text = iconText ~= "" and ("  " .. iconText .. "  " .. name) or ("  " .. name)
     tabButton.Parent = self._tabBar
     createRound(tabButton, 6)
 
@@ -479,21 +678,21 @@ function TabClass:CreateSection(title)
 
     local frame = Instance.new("Frame")
     frame.Name = "Section_" .. title
-    frame.BackgroundColor3 = Theme.Section
+    frame.BackgroundColor3 = Theme.Background
+    frame.BackgroundTransparency = 1
     frame.BorderSizePixel = 0
-    frame.Size = UDim2.new(1, 0, 0, 30)
+    frame.Size = UDim2.new(1, 0, 0, 24)
     frame.Parent = self._content
-    createRound(frame, 6)
 
     local label = Instance.new("TextLabel")
     label.Name = "Title"
     label.BackgroundTransparency = 1
-    label.Position = UDim2.new(0, 10, 0, 0)
-    label.Size = UDim2.new(1, -20, 1, 0)
+    label.Position = UDim2.new(0, 4, 0, 0)
+    label.Size = UDim2.new(1, -8, 1, 0)
     label.Font = Enum.Font.GothamSemibold
     label.TextSize = 14
     label.TextXAlignment = Enum.TextXAlignment.Left
-    label.TextColor3 = Theme.Text
+    label.TextColor3 = Theme.TextDim
     label.Text = title
     label.Parent = frame
 
