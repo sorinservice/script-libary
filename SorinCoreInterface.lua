@@ -120,6 +120,35 @@ local function ensureScreenGui()
         return screenGui, notificationHolder
     end
 
+    -- Destroy any previous SorinCoreInterface ScreenGui instances to avoid duplicates
+    local function destroyExisting(name)
+        local okCore, coreGui = pcall(function()
+            return game:GetService("CoreGui")
+        end)
+        if okCore and coreGui then
+            local old = coreGui:FindFirstChild(name)
+            if old then
+                pcall(function()
+                    old:Destroy()
+                end)
+            end
+        end
+
+        if LocalPlayer then
+            local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+            if pg then
+                local old = pg:FindFirstChild(name)
+                if old then
+                    pcall(function()
+                        old:Destroy()
+                    end)
+                end
+            end
+        end
+    end
+
+    destroyExisting("SorinCoreInterface")
+
     screenGui = Instance.new("ScreenGui")
     screenGui.Name = "SorinCoreInterface"
     screenGui.IgnoreGuiInset = true
