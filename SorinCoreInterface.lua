@@ -451,7 +451,7 @@ function WindowClass:CreateTab(opts)
 
     tabButton.MouseEnter:Connect(function()
         if self._activeTab ~= tab then
-            t tween(tabButton, TweenInfo.new(0.15), { BackgroundColor3 = Theme.ButtonHover })
+            tween(tabButton, TweenInfo.new(0.15), { BackgroundColor3 = Theme.ButtonHover })
         end
     end)
 
@@ -715,4 +715,3 @@ end
 ---------------------------------------------------------------------
 
 return setmetatable(SorinCoreInterface, SorinCoreInterface)
-
