@@ -1297,6 +1297,232 @@ function TabClass:CreateSlider(opts)
     }
 end
 
+function TabClass:CreateDropdown(opts)
+    opts = opts or {}
+    local name = tostring(opts.Name or "Dropdown")
+    local description = opts.Description and tostring(opts.Description) or ""
+    local callback = typeof(opts.Callback) == "function" and opts.Callback or nil
+
+    local iconName = opts.Icon
+    local iconSource = opts.IconSource or opts.ImageSource or "Material"
+    local iconAsset = resolveIconAsset(iconName, iconSource)
+
+    local rawOptions = {}
+    if typeof(opts.Options) == "table" then
+        for _, v in ipairs(opts.Options) do
+            table.insert(rawOptions, tostring(v))
+        end
+    end
+
+    local options = rawOptions
+    local current = nil
+
+    local function findIndex(value)
+        if value == nil then
+            return nil
+        end
+        for i, v in ipairs(options) do
+            if v == value then
+                return i
+            end
+        end
+        return nil
+    end
+
+    local function pickInitial()
+        local default = opts.CurrentValue or opts.Default
+        if default then
+            default = tostring(default)
+            local idx = findIndex(default)
+            if idx then
+                return default
+            end
+        end
+        return options[1]
+    end
+
+    current = pickInitial()
+
+    local height = description ~= "" and 54 or 36
+
+    local frame = Instance.new("Frame")
+    frame.Name = "Dropdown_" .. name
+    frame.BackgroundColor3 = Theme.Button
+    frame.BorderSizePixel = 0
+    frame.Size = UDim2.new(1, 0, 0, height)
+    frame.Parent = self._content
+    createRound(frame, 6)
+
+    local hitbox = Instance.new("TextButton")
+    hitbox.Name = "Hitbox"
+    hitbox.BackgroundTransparency = 1
+    hitbox.Size = UDim2.new(1, 0, 1, 0)
+    hitbox.Font = Enum.Font.Gotham
+    hitbox.Text = ""
+    hitbox.Parent = frame
+
+    local iconOffset = 10
+
+    if iconAsset then
+        local iconImage = Instance.new("ImageLabel")
+        iconImage.Name = "Icon"
+        iconImage.BackgroundTransparency = 1
+        iconImage.Size = UDim2.new(0, 18, 0, 18)
+        iconImage.Position = UDim2.new(0, 10, 0, 6)
+        iconImage.Image = iconAsset
+        iconImage.ImageColor3 = Theme.TextDim
+        iconImage.Parent = frame
+
+        iconOffset = 10 + 18 + 6
+    end
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "Title"
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Position = UDim2.new(0, iconOffset, 0, 4)
+    titleLabel.Size = UDim2.new(1, -iconOffset - 80, 0, 18)
+    titleLabel.Font = Enum.Font.GothamSemibold
+    titleLabel.TextSize = 14
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextColor3 = Theme.Text
+    titleLabel.Text = name
+    titleLabel.Parent = frame
+
+    if description ~= "" then
+        local descLabel = Instance.new("TextLabel")
+        descLabel.Name = "Description"
+        descLabel.BackgroundTransparency = 1
+        descLabel.Position = UDim2.new(0, iconOffset, 0, 22)
+        descLabel.Size = UDim2.new(1, -iconOffset - 10, 0, 18)
+        descLabel.Font = Enum.Font.Gotham
+        descLabel.TextSize = 12
+        descLabel.TextXAlignment = Enum.TextXAlignment.Left
+        descLabel.TextColor3 = Theme.TextDim
+        descLabel.Text = description
+        descLabel.Parent = frame
+    end
+
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Name = "Value"
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.Position = UDim2.new(1, -70, 0, 4)
+    valueLabel.Size = UDim2.new(0, 60, 0, 18)
+    valueLabel.Font = Enum.Font.Gotham
+    valueLabel.TextSize = 13
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    valueLabel.TextColor3 = Theme.TextDim
+    valueLabel.Text = current or ""
+    valueLabel.Parent = frame
+
+    local arrowLabel = Instance.new("TextLabel")
+    arrowLabel.Name = "Arrow"
+    arrowLabel.BackgroundTransparency = 1
+    arrowLabel.Position = UDim2.new(1, -12, 0, 4)
+    arrowLabel.Size = UDim2.new(0, 10, 0, 18)
+    arrowLabel.Font = Enum.Font.GothamSemibold
+    arrowLabel.TextSize = 13
+    arrowLabel.TextColor3 = Theme.TextDim
+    arrowLabel.Text = "▼"
+    arrowLabel.Parent = frame
+
+    local function applyDisplay()
+        valueLabel.Text = current or ""
+    end
+
+    local function setValue(newValue, fromUser)
+        if newValue ~= nil then
+            newValue = tostring(newValue)
+        end
+
+        if newValue ~= nil and not findIndex(newValue) then
+            -- value not in options; ignore
+            return
+        end
+
+        current = newValue
+        applyDisplay()
+
+        if callback and fromUser and current ~= nil then
+            task.spawn(function()
+                local ok, err = pcall(callback, current)
+                if not ok then
+                    SorinCoreInterface:Notify({
+                        Title = name,
+                        Content = "Dropdown error: " .. tostring(err),
+                        Type = "error",
+                    })
+                end
+            end)
+        end
+    end
+
+    local function cycleNext()
+        if #options == 0 then
+            return
+        end
+        if not current then
+            setValue(options[1], true)
+            return
+        end
+        local idx = findIndex(current) or 0
+        idx = idx + 1
+        if idx > #options then
+            idx = 1
+        end
+        setValue(options[idx], true)
+    end
+
+    hitbox.MouseEnter:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.ButtonHover })
+    end)
+
+    hitbox.MouseLeave:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.Button })
+    end)
+
+    hitbox.MouseButton1Click:Connect(function()
+        cycleNext()
+    end)
+
+    applyDisplay()
+
+    return {
+        Frame = frame,
+        Set = function(_, optionsUpdate)
+            if not optionsUpdate then
+                return
+            end
+
+            local newOptions = options
+            local newCurrent = current
+
+            if typeof(optionsUpdate.Options) == "table" then
+                newOptions = {}
+                for _, v in ipairs(optionsUpdate.Options) do
+                    table.insert(newOptions, tostring(v))
+                end
+            end
+
+            if optionsUpdate.CurrentValue ~= nil then
+                newCurrent = tostring(optionsUpdate.CurrentValue)
+            end
+
+            options = newOptions
+
+            if newCurrent ~= nil and findIndex(newCurrent) then
+                current = newCurrent
+            else
+                current = options[1]
+            end
+
+            applyDisplay()
+        end,
+        Get = function()
+            return current
+        end,
+    }
+end
+
 ---------------------------------------------------------------------
 -- Public export
 ---------------------------------------------------------------------
