@@ -1,153 +1,1613 @@
--- Sorin Core Hub - modular loader (v0.2)
--- Tabs are loaded from separate remote scripts similar to the old GamesHub.
+-- SorinCoreInterface.lua
+-- Simple UI framework for "Sorin Core Hub"
+-- Provides: CreateWindow, tabs, buttons, toggles, notifications
 
--- 1) Helper to safely load remote modules
-local function safeRequire(url, name)
-    local okHttp, body = pcall(function()
-        return game:HttpGet(url)
+local SorinCoreInterface = {}
+SorinCoreInterface.__index = SorinCoreInterface
+
+---------------------------------------------------------------------
+-- Services
+---------------------------------------------------------------------
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+
+local LocalPlayer = Players.LocalPlayer
+
+---------------------------------------------------------------------
+-- Utility
+---------------------------------------------------------------------
+
+local function safeParentGui(gui)
+    local ok, coreGui = pcall(function()
+        return game:GetService("CoreGui")
     end)
-    if not okHttp then
-        warn(("[SorinCoreHub] HttpGet failed for %s: %s"):format(name or url, tostring(body)))
-        return nil, "HttpGet failed: " .. tostring(body)
+    if ok and coreGui then
+        gui.Parent = coreGui
+        return
     end
 
-    local fn, loadErr = loadstring(body)
-    if not fn then
-        warn(("[SorinCoreHub] loadstring failed for %s: %s"):format(name or url, tostring(loadErr)))
-        return nil, "loadstring failed: " .. tostring(loadErr)
+    if LocalPlayer and LocalPlayer:FindFirstChildOfClass("PlayerGui") then
+        gui.Parent = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+    end
+end
+
+local function createRound(instance, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius or 6)
+    corner.Parent = instance
+    return corner
+end
+
+local function tween(instance, info, props)
+    local ok, tw = pcall(TweenService.Create, TweenService, instance, info, props)
+    if ok and tw then
+        tw:Play()
+    else
+        for k, v in pairs(props) do
+            instance[k] = v
+        end
+    end
+end
+
+local function keyCodeToLabel(key)
+    if typeof(key) == "EnumItem" and key.EnumType == Enum.KeyCode then
+        return key.Name
+    end
+    if type(key) == "string" and key ~= "" then
+        return key
+    end
+    return "K"
+end
+
+local function resolveIconAsset(iconName, sourceName)
+    if type(iconName) ~= "string" or iconName == "" then
+        return nil
     end
 
-    local okRun, mod = pcall(fn)
-    if not okRun then
-        warn(("[SorinCoreHub] executing %s failed: %s"):format(name or url, tostring(mod)))
-        return nil, "module pcall failed: " .. tostring(mod)
+    local icons = SorinCoreInterface.Icons
+    if typeof(icons) ~= "table" then
+        return nil
     end
 
-    return mod
+    local sourceKey = sourceName or "Material"
+    local sourceTable = icons[sourceKey]
+    if typeof(sourceTable) ~= "table" then
+        return nil
+    end
+
+    local asset = sourceTable[iconName]
+    if type(asset) ~= "string" or asset == "" then
+        return nil
+    end
+
+    return asset
 end
 
--- 2) SorinCoreInterface + Icons
-local SorinCoreInterface, errInterface = safeRequire(
-    "https://raw.githubusercontent.com/sorinservice/script-libary/refs/heads/main/SorinCoreInterface.lua",
-    "SorinCoreInterface"
-)
+---------------------------------------------------------------------
+-- Theme
+---------------------------------------------------------------------
 
-if not SorinCoreInterface then
-    warn("[SorinCoreHub] SorinCoreInterface konnte nicht geladen werden:", errInterface)
-    return
-end
-
-local Icons, errIcons = safeRequire(
-    "https://raw.githubusercontent.com/SorinSoftware-Services/AurexisInterfaceLibrary/main/src/icons.lua",
-    "AurexisIcons"
-)
-
-if Icons then
-    SorinCoreInterface.Icons = Icons
-else
-    warn("[SorinCoreHub] Icons table konnte nicht geladen werden:", errIcons)
-end
-
--- 3) Create main window with loading screen
-local Window = SorinCoreInterface:CreateWindow({
-    Name = "Sorin Core Hub",
-    Subtitle = "SorinSoftware Services",
-    ToggleKey = Enum.KeyCode.K,
-
-    LoadingEnabled = true,
-    LoadingTitle = "Sorin Core Hub",
-    LoadingSubtitle = "Loading core modules ...",
-})
-
--- 4) Remote tab definitions
--- Adjust URLs to your repo (0457a4c4-fca0-4011-92b1-2f2111886456).
-local TABS = {
-    Main = "https://raw.githubusercontent.com/sorin-code-softwares/0457a4c4-fca0-4011-92b1-2f2111886456/main/Tabs/Main.lua",
-    Movement = "https://raw.githubusercontent.com/sorin-code-softwares/0457a4c4-fca0-4011-92b1-2f2111886456/main/Tabs/Movement.lua",
-    Automation = "https://raw.githubusercontent.com/sorin-code-softwares/0457a4c4-fca0-4011-92b1-2f2111886456/main/Tabs/Automation.lua",
-    Interaction = "https://raw.githubusercontent.com/sorin-code-softwares/0457a4c4-fca0-4011-92b1-2f2111886456/main/Tabs/Interaction.lua",
+local Theme = {
+    Background = Color3.fromRGB(20, 20, 24),
+    Accent = Color3.fromRGB(85, 170, 255),
+    AccentSoft = Color3.fromRGB(40, 80, 120),
+    Border = Color3.fromRGB(40, 40, 48),
+    Text = Color3.fromRGB(235, 235, 240),
+    TextDim = Color3.fromRGB(170, 170, 180),
+    Section = Color3.fromRGB(28, 28, 34),
+    Button = Color3.fromRGB(36, 36, 44),
+    ButtonHover = Color3.fromRGB(50, 50, 60),
+    ToggleOn = Color3.fromRGB(90, 190, 120),
+    ToggleOff = Color3.fromRGB(80, 80, 90),
+    NotificationInfo = Color3.fromRGB(60, 130, 200),
+    NotificationSuccess = Color3.fromRGB(70, 180, 120),
+    NotificationWarning = Color3.fromRGB(200, 160, 60),
+    NotificationError = Color3.fromRGB(200, 70, 70),
 }
 
-local TabDefs = {
-    {
-        id = "Main",
-        name = "Main",
-        icon = "home",
-        iconSource = "Material",
-        url = TABS.Main,
-    },
-    {
-        id = "Movement",
-        name = "Movement",
-        icon = "directions_run",
-        iconSource = "Material",
-        url = TABS.Movement,
-    },
-    {
-        id = "Automation",
-        name = "Automation",
-        icon = "tune",
-        iconSource = "Material",
-        url = TABS.Automation,
-    },
-    {
-        id = "Interaction",
-        name = "Interaction",
-        icon = "groups",
-        iconSource = "Material",
-        url = TABS.Interaction,
-    },
-}
+---------------------------------------------------------------------
+-- Core GUI bootstrap
+---------------------------------------------------------------------
 
-local function attachRemoteTab(def)
-    local tab = Window:CreateTab({
-        Name = def.name or def.id,
-        Icon = def.icon,
-        IconSource = def.iconSource or def.ImageSource or "Material",
+local screenGui
+local notificationHolder
+
+local function ensureScreenGui()
+    if screenGui and screenGui.Parent then
+        return screenGui, notificationHolder
+    end
+
+    -- Destroy any previous SorinCoreInterface ScreenGui instances to avoid duplicates
+    local function destroyExisting(name)
+        local okCore, coreGui = pcall(function()
+            return game:GetService("CoreGui")
+        end)
+        if okCore and coreGui then
+            local old = coreGui:FindFirstChild(name)
+            if old then
+                pcall(function()
+                    old:Destroy()
+                end)
+            end
+        end
+
+        if LocalPlayer then
+            local pg = LocalPlayer:FindFirstChildOfClass("PlayerGui")
+            if pg then
+                local old = pg:FindFirstChild(name)
+                if old then
+                    pcall(function()
+                        old:Destroy()
+                    end)
+                end
+            end
+        end
+    end
+
+    destroyExisting("SorinCoreInterface")
+
+    screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "SorinCoreInterface"
+    screenGui.IgnoreGuiInset = true
+    screenGui.ResetOnSpawn = false
+
+    safeParentGui(screenGui)
+
+    notificationHolder = Instance.new("Frame")
+    notificationHolder.Name = "Notifications"
+    notificationHolder.AnchorPoint = Vector2.new(1, 0)
+    notificationHolder.Position = UDim2.new(1, -16, 0, 16)
+    notificationHolder.Size = UDim2.new(0, 280, 1, -32)
+    notificationHolder.BackgroundTransparency = 1
+    notificationHolder.ClipsDescendants = false
+    notificationHolder.Parent = screenGui
+
+    local layout = Instance.new("UIListLayout")
+    layout.FillDirection = Enum.FillDirection.Vertical
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+    layout.VerticalAlignment = Enum.VerticalAlignment.Top
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Padding = UDim.new(0, 6)
+    layout.Parent = notificationHolder
+
+    return screenGui, notificationHolder
+end
+
+---------------------------------------------------------------------
+-- Notifications
+---------------------------------------------------------------------
+
+local function pickNotificationColor(kind)
+    kind = string.lower(kind or "info")
+    if kind == "success" or kind == "ok" or kind == "check" then
+        return Theme.NotificationSuccess
+    elseif kind == "warn" or kind == "warning" or kind == "alert" then
+        return Theme.NotificationWarning
+    elseif kind == "error" or kind == "fail" or kind == "danger" then
+        return Theme.NotificationError
+    else
+        return Theme.NotificationInfo
+    end
+end
+
+function SorinCoreInterface:Notify(opts)
+    local _, holder = ensureScreenGui()
+    if not holder then
+        return
+    end
+
+    opts = opts or {}
+    local title = tostring(opts.Title or "Notification")
+    local content = tostring(opts.Content or "")
+    local kind = opts.Type or opts.Kind or "info"
+    local duration = tonumber(opts.Duration) or 3
+
+    local frame = Instance.new("Frame")
+    frame.Name = "Toast"
+    frame.BackgroundColor3 = Theme.Section
+    frame.BorderSizePixel = 0
+    frame.Size = UDim2.new(1, 0, 0, content ~= "" and 70 or 40)
+    frame.BackgroundTransparency = 0.1
+    frame.ClipsDescendants = true
+    frame.Parent = holder
+    createRound(frame, 6)
+
+    local accent = Instance.new("Frame")
+    accent.Name = "Accent"
+    accent.BackgroundColor3 = pickNotificationColor(kind)
+    accent.BorderSizePixel = 0
+    accent.Size = UDim2.new(0, 3, 1, 0)
+    accent.Position = UDim2.new(0, 0, 0, 0)
+    accent.Parent = frame
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "Title"
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Position = UDim2.new(0, 10, 0, 6)
+    titleLabel.Size = UDim2.new(1, -20, 0, 18)
+    titleLabel.Font = Enum.Font.GothamSemibold
+    titleLabel.TextSize = 14
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextColor3 = Theme.Text
+    titleLabel.Text = title
+    titleLabel.Parent = frame
+
+    if content ~= "" then
+        local bodyLabel = Instance.new("TextLabel")
+        bodyLabel.Name = "Body"
+        bodyLabel.BackgroundTransparency = 1
+        bodyLabel.Position = UDim2.new(0, 10, 0, 24)
+        bodyLabel.Size = UDim2.new(1, -20, 1, -30)
+        bodyLabel.Font = Enum.Font.Gotham
+        bodyLabel.TextSize = 13
+        bodyLabel.TextXAlignment = Enum.TextXAlignment.Left
+        bodyLabel.TextYAlignment = Enum.TextYAlignment.Top
+        bodyLabel.TextWrapped = true
+        bodyLabel.TextColor3 = Theme.TextDim
+        bodyLabel.Text = content
+        bodyLabel.Parent = frame
+    end
+
+    frame.BackgroundTransparency = 1
+    frame.Position = UDim2.new(1, 20, 0, 0)
+
+    tween(frame, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundTransparency = 0.1,
+        Position = UDim2.new(0, 0, 0, 0),
     })
 
-    local mod, err = safeRequire(def.url, def.name or def.id)
-    if not mod then
-        tab:CreateButton({
-            Name = "Tab load error",
-            Description = tostring(err),
-            Icon = "_error_outline",
-            IconSource = "Material",
-            Callback = function() end,
+    task.delay(duration, function()
+        if not frame.Parent then
+            return
+        end
+        tween(frame, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            BackgroundTransparency = 1,
+            Position = UDim2.new(1, 20, 0, 0),
         })
+        task.delay(0.25, function()
+            pcall(function()
+                frame:Destroy()
+            end)
+        end)
+    end)
+end
+
+---------------------------------------------------------------------
+-- Window / Tab classes
+---------------------------------------------------------------------
+
+local WindowClass = {}
+WindowClass.__index = WindowClass
+
+local TabClass = {}
+TabClass.__index = TabClass
+
+---------------------------------------------------------------------
+-- Window: constructor
+---------------------------------------------------------------------
+
+function SorinCoreInterface:CreateWindow(opts)
+    ensureScreenGui()
+
+    opts = opts or {}
+    local name = tostring(opts.Name or "Sorin Core Hub")
+    local subtitle = tostring(opts.Subtitle or "SorinSoftware Services")
+    local toggleKey = opts.ToggleKey or Enum.KeyCode.K
+
+    -- optional loading overlay config
+    local loadingEnabled = opts.LoadingEnabled == true
+    local loadingTitle = tostring(opts.LoadingTitle or name)
+    local loadingSubtitle = tostring(opts.LoadingSubtitle or "Loading interface ...")
+
+    -- simple viewport-aware sizing (desktop + mobile)
+    local viewportX, viewportY = 1280, 720
+    do
+        local ok, cam = pcall(function()
+            return Workspace.CurrentCamera
+        end)
+        if ok and cam and cam.ViewportSize then
+            viewportX = cam.ViewportSize.X
+            viewportY = cam.ViewportSize.Y
+        end
+    end
+
+    local baseWidth, baseHeight = 620, 360
+    local width = math.min(baseWidth, math.floor(viewportX * 0.9))
+    local height = math.min(baseHeight, math.floor(viewportY * 0.8))
+
+    -- root window frame
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Name = "MainWindow"
+    mainFrame.Size = UDim2.new(0, width, 0, height)
+    mainFrame.Position = UDim2.new(0.5, -width / 2, 0.5, -height / 2)
+    mainFrame.BackgroundColor3 = Theme.Background
+    mainFrame.BackgroundTransparency = 0.05
+    mainFrame.BorderColor3 = Theme.Border
+    mainFrame.BorderSizePixel = 1
+    mainFrame.Active = true
+    mainFrame.Draggable = true
+    mainFrame.Parent = screenGui
+    createRound(mainFrame, 8)
+
+    -- top bar
+    local topBarHeight = 40
+
+    local topBar = Instance.new("Frame")
+    topBar.Name = "TopBar"
+    topBar.BackgroundColor3 = Theme.Section
+    topBar.BackgroundTransparency = 0.05
+    topBar.BorderSizePixel = 0
+    topBar.Size = UDim2.new(1, 0, 0, topBarHeight)
+    topBar.Parent = mainFrame
+    createRound(topBar, 8)
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "Title"
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Position = UDim2.new(0, 12, 0, 4)
+    titleLabel.Size = UDim2.new(1, -100, 0, 18)
+    titleLabel.Font = Enum.Font.GothamSemibold
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextSize = 15
+    titleLabel.TextColor3 = Theme.Text
+    titleLabel.Text = name
+    titleLabel.Parent = topBar
+
+    local subtitleLabel = Instance.new("TextLabel")
+    subtitleLabel.Name = "Subtitle"
+    subtitleLabel.BackgroundTransparency = 1
+    subtitleLabel.Position = UDim2.new(0, 12, 0, 22)
+    subtitleLabel.Size = UDim2.new(1, -100, 0, 16)
+    subtitleLabel.Font = Enum.Font.Gotham
+    subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    subtitleLabel.TextSize = 12
+    subtitleLabel.TextColor3 = Theme.TextDim
+    subtitleLabel.Text = subtitle
+    subtitleLabel.Parent = topBar
+
+    -- close button
+    local closeButton = Instance.new("TextButton")
+    closeButton.Name = "Close"
+    closeButton.BackgroundTransparency = 1
+    closeButton.Position = UDim2.new(1, -28, 0, 0)
+    closeButton.Size = UDim2.new(0, 28, 1, 0)
+    closeButton.Font = Enum.Font.GothamSemibold
+    closeButton.TextSize = 16
+    closeButton.TextColor3 = Theme.TextDim
+    closeButton.Text = "×"
+    closeButton.Parent = topBar
+
+    -- minimize button
+    local minimizeButton = Instance.new("TextButton")
+    minimizeButton.Name = "Minimize"
+    minimizeButton.BackgroundTransparency = 1
+    minimizeButton.Position = UDim2.new(1, -52, 0, 0)
+    minimizeButton.Size = UDim2.new(0, 24, 1, 0)
+    minimizeButton.Font = Enum.Font.GothamSemibold
+    minimizeButton.TextSize = 16
+    minimizeButton.TextColor3 = Theme.TextDim
+    minimizeButton.Text = "–"
+    minimizeButton.Parent = topBar
+
+    -- left tab bar
+    local tabBar = Instance.new("Frame")
+    tabBar.Name = "TabBar"
+    tabBar.BackgroundColor3 = Theme.Section
+    tabBar.BackgroundTransparency = 0.08
+    tabBar.BorderSizePixel = 0
+    tabBar.Position = UDim2.new(0, 0, 0, topBarHeight)
+    tabBar.Size = UDim2.new(0, 160, 1, -topBarHeight)
+    tabBar.Parent = mainFrame
+
+    local tabList = Instance.new("UIListLayout")
+    tabList.FillDirection = Enum.FillDirection.Vertical
+    tabList.SortOrder = Enum.SortOrder.LayoutOrder
+    tabList.Padding = UDim.new(0, 4)
+    tabList.Parent = tabBar
+
+    local tabPadding = Instance.new("UIPadding")
+    tabPadding.PaddingTop = UDim.new(0, 8)
+    tabPadding.PaddingLeft = UDim.new(0, 8)
+    tabPadding.PaddingRight = UDim.new(0, 8)
+    tabPadding.Parent = tabBar
+
+    -- content container
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Name = "Content"
+    contentFrame.BackgroundColor3 = Theme.Background
+    contentFrame.BackgroundTransparency = 0.05
+    contentFrame.BorderSizePixel = 0
+    contentFrame.Position = UDim2.new(0, 160, 0, topBarHeight)
+    contentFrame.Size = UDim2.new(1, -160, 1, -topBarHeight)
+    contentFrame.Parent = mainFrame
+
+    createRound(contentFrame, 8)
+
+    local window = setmetatable({
+        _name = name,
+        _frame = mainFrame,
+        _tabBar = tabBar,
+        _content = contentFrame,
+        _tabs = {},
+        _activeTab = nil,
+        _toggleConnection = nil,
+        _toggleKey = toggleKey,
+        _minimized = false,
+        _storedSize = mainFrame.Size,
+        _storedContentVisible = true,
+        _storedTabVisible = true,
+        _minimizeButton = minimizeButton,
+        _loadingEnabled = loadingEnabled,
+        _loadingTitle = loadingTitle,
+        _loadingSubtitle = loadingSubtitle,
+        _loadingFrame = nil,
+        _hasShownWelcome = false,
+    }, WindowClass)
+
+    -- visibility toggle via key
+    if toggleKey then
+        window._toggleConnection = UserInputService.InputBegan:Connect(function(input, gp)
+            if input.UserInputType == Enum.UserInputType.Keyboard
+                and input.KeyCode == toggleKey then
+                window:SetVisible(not window:GetVisible())
+            end
+        end)
+    end
+
+    closeButton.MouseButton1Click:Connect(function()
+        window:SetVisible(false)
+    end)
+
+    minimizeButton.MouseButton1Click:Connect(function()
+        window:SetMinimized(not window:GetMinimized())
+    end)
+
+    -- initial visibility / loading
+    if loadingEnabled then
+        mainFrame.Visible = false
+        window:SetLoading(true)
+    else
+        mainFrame.Visible = true
+    end
+
+    return window
+end
+
+---------------------------------------------------------------------
+-- Window methods
+---------------------------------------------------------------------
+
+function WindowClass:SetVisible(state)
+    state = state and true or false
+    if not self._frame then
         return
     end
 
-    if type(mod) ~= "function" then
-        tab:CreateButton({
-            Name = "Tab init error",
-            Description = "Module did not return a function.",
-            Icon = "_error_outline",
-            IconSource = "Material",
-            Callback = function() end,
-        })
+    -- if we are explicitly trying to show the window, make sure any
+    -- leftover loading overlay is hidden so it cannot cover the hub
+    if state and self._loadingFrame and self._loadingFrame.Visible then
+        self._loadingFrame.Visible = false
+    end
+
+    local wasVisible = self._frame.Visible
+    self._frame.Visible = state
+
+    if state ~= wasVisible then
+        local title = self._name or "Sorin Core Hub"
+        local keyLabel = keyCodeToLabel(self._toggleKey)
+
+        if state then
+            if not self._hasShownWelcome then
+                self._hasShownWelcome = true
+                SorinCoreInterface:Notify({
+                    Title = title,
+                    Content = string.format("Welcome to %s. Press %s to hide/show the hub.", title, keyLabel),
+                    Type = "info",
+                })
+            end
+        else
+            SorinCoreInterface:Notify({
+                Title = title,
+                Content = string.format("Press %s to reopen the hub.", keyLabel),
+                Type = "info",
+            })
+        end
+    end
+end
+
+function WindowClass:GetVisible()
+    return self._frame and self._frame.Visible or false
+end
+
+function WindowClass:SetMinimized(state)
+    state = state and true or false
+    if not self._frame or self._minimized == state then
         return
     end
 
-    local ok, initErr = pcall(mod, tab, SorinCoreInterface, Window)
-    if not ok then
-        tab:CreateButton({
-            Name = "Tab init error",
-            Description = tostring(initErr),
-            Icon = "_error",
-            IconSource = "Material",
-            Callback = function() end,
+    self._minimized = state
+
+    local frame = self._frame
+    local topHeight = 40
+
+    if state then
+        self._storedSize = frame.Size
+        if self._content then
+            self._storedContentVisible = self._content.Visible
+            self._content.Visible = false
+        end
+        if self._tabBar then
+            self._storedTabVisible = self._tabBar.Visible
+            self._tabBar.Visible = false
+        end
+
+        tween(frame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = UDim2.new(frame.Size.X.Scale, frame.Size.X.Offset, 0, topHeight + 4),
         })
+    else
+        tween(frame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+            Size = self._storedSize or frame.Size,
+        })
+
+        if self._content then
+            self._content.Visible = (self._storedContentVisible ~= false)
+        end
+        if self._tabBar then
+            self._tabBar.Visible = (self._storedTabVisible ~= false)
+        end
+    end
+
+    if self._minimizeButton then
+        self._minimizeButton.Text = self._minimized and "+" or "–"
     end
 end
 
--- 5) Attach all tabs
-for _, def in ipairs(TabDefs) do
-    attachRemoteTab(def)
+function WindowClass:GetMinimized()
+    return self._minimized == true
 end
 
--- 6) Close loading screen (small delay so animation is visible)
-task.delay(1.5, function()
-    Window:FinishLoading()
-end)
+function WindowClass:SetLoading(state)
+    state = state and true or false
 
+    if state then
+        ensureScreenGui()
+
+        if not self._loadingFrame then
+            local overlay = Instance.new("Frame")
+            overlay.Name = "SorinCore_Loading"
+            overlay.BackgroundColor3 = Color3.new(0, 0, 0)
+            overlay.BackgroundTransparency = 0.35
+            overlay.BorderSizePixel = 0
+            overlay.Size = UDim2.new(1, 0, 1, 0)
+            overlay.Position = UDim2.new(0, 0, 0, 0)
+            overlay.ZIndex = 40
+            overlay.Parent = screenGui
+
+            local card = Instance.new("Frame")
+            card.Name = "Card"
+            card.BackgroundColor3 = Theme.Section
+            card.BackgroundTransparency = 0.1
+            card.BorderSizePixel = 0
+            card.Size = UDim2.new(0, 260, 0, 90)
+            card.AnchorPoint = Vector2.new(0.5, 0.5)
+            card.Position = UDim2.new(0.5, 0, 0.5, 0)
+            card.ZIndex = 41
+            card.Parent = overlay
+            createRound(card, 8)
+
+            local titleLabel = Instance.new("TextLabel")
+            titleLabel.Name = "Title"
+            titleLabel.BackgroundTransparency = 1
+            titleLabel.Position = UDim2.new(0, 12, 0, 10)
+            titleLabel.Size = UDim2.new(1, -24, 0, 20)
+            titleLabel.Font = Enum.Font.GothamSemibold
+            titleLabel.TextSize = 16
+            titleLabel.TextColor3 = Theme.Text
+            titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+            titleLabel.ZIndex = 42
+            titleLabel.Text = self._loadingTitle or "Sorin Core Hub"
+            titleLabel.Parent = card
+
+            local subtitleLabel = Instance.new("TextLabel")
+            subtitleLabel.Name = "Subtitle"
+            subtitleLabel.BackgroundTransparency = 1
+            subtitleLabel.Position = UDim2.new(0, 12, 0, 32)
+            subtitleLabel.Size = UDim2.new(1, -24, 0, 18)
+            subtitleLabel.Font = Enum.Font.Gotham
+            subtitleLabel.TextSize = 13
+            subtitleLabel.TextColor3 = Theme.TextDim
+            subtitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+            subtitleLabel.ZIndex = 42
+            subtitleLabel.Text = self._loadingSubtitle or "Loading interface ..."
+            subtitleLabel.Parent = card
+
+            local bar = Instance.new("Frame")
+            bar.Name = "Bar"
+            bar.BackgroundColor3 = Theme.AccentSoft
+            bar.BackgroundTransparency = 0.3
+            bar.BorderSizePixel = 0
+            bar.Size = UDim2.new(1, -24, 0, 4)
+            bar.Position = UDim2.new(0, 12, 1, -16)
+            bar.ZIndex = 42
+            bar.Parent = card
+            createRound(bar, 2)
+
+            self._loadingFrame = overlay
+        end
+
+        self._loadingFrame.Visible = true
+        if self._frame then
+            self._frame.Visible = false
+        end
+    else
+        if self._loadingFrame then
+            self._loadingFrame.Visible = false
+        end
+        if self._frame then
+            self._frame.Visible = true
+        end
+    end
+end
+
+function WindowClass:FinishLoading()
+    self:SetLoading(false)
+end
+
+function WindowClass:Destroy()
+    if self._toggleConnection then
+        self._toggleConnection:Disconnect()
+        self._toggleConnection = nil
+    end
+    if self._frame then
+        self._frame:Destroy()
+        self._frame = nil
+    end
+end
+
+function WindowClass:CreateTab(opts)
+    opts = opts or {}
+    local name = tostring(opts.Name or "Tab")
+    local iconName = opts.Icon
+    local iconSource = opts.IconSource or opts.ImageSource or "Material"
+    local iconAsset = resolveIconAsset(iconName, iconSource)
+
+    local tabButton = Instance.new("TextButton")
+    tabButton.Name = "TabButton_" .. name
+    tabButton.BackgroundColor3 = Theme.Button
+    tabButton.BorderSizePixel = 0
+    tabButton.Size = UDim2.new(1, 0, 0, 28)
+    tabButton.AutoButtonColor = false
+    tabButton.Font = Enum.Font.Gotham
+    tabButton.TextSize = 13
+    tabButton.TextColor3 = Theme.TextDim
+    tabButton.TextXAlignment = Enum.TextXAlignment.Left
+    tabButton.Text = "  " .. name
+    tabButton.Parent = self._tabBar
+    createRound(tabButton, 6)
+
+    if iconAsset then
+        local iconImage = Instance.new("ImageLabel")
+        iconImage.Name = "Icon"
+        iconImage.BackgroundTransparency = 1
+        iconImage.Size = UDim2.new(0, 16, 0, 16)
+        iconImage.AnchorPoint = Vector2.new(0, 0.5)
+        iconImage.Position = UDim2.new(0, 8, 0.5, 0)
+        iconImage.Image = iconAsset
+        iconImage.ImageColor3 = Theme.TextDim
+        iconImage.Parent = tabButton
+
+        tabButton.Text = "      " .. name
+    end
+
+    local content = Instance.new("ScrollingFrame")
+    content.Name = "TabContent_" .. name
+    content.BackgroundColor3 = Theme.Background
+    content.BorderSizePixel = 0
+    content.Position = UDim2.new(0, 8, 0, 8)
+    content.Size = UDim2.new(1, -16, 1, -16)
+    content.ScrollBarThickness = 4
+    content.CanvasSize = UDim2.new(0, 0, 0, 0)
+    content.ScrollBarImageColor3 = Theme.AccentSoft
+    content.Visible = false
+    content.Parent = self._content
+
+    local layout = Instance.new("UIListLayout")
+    layout.FillDirection = Enum.FillDirection.Vertical
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Padding = UDim.new(0, 6)
+    layout.Parent = content
+
+    local padding = Instance.new("UIPadding")
+    padding.PaddingTop = UDim.new(0, 6)
+    padding.PaddingLeft = UDim.new(0, 6)
+    padding.PaddingRight = UDim.new(0, 6)
+    padding.Parent = content
+
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        content.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 8)
+    end)
+
+    local tab = setmetatable({
+        _window = self,
+        _button = tabButton,
+        _content = content,
+        _name = name,
+    }, TabClass)
+
+    table.insert(self._tabs, tab)
+
+    local function activate()
+        for _, t in ipairs(self._tabs) do
+            local isActive = (t == tab)
+            t._content.Visible = isActive
+            if isActive then
+                t._button.BackgroundColor3 = Theme.AccentSoft
+                t._button.TextColor3 = Theme.Text
+            else
+                t._button.BackgroundColor3 = Theme.Button
+                t._button.TextColor3 = Theme.TextDim
+            end
+        end
+        self._activeTab = tab
+    end
+
+    tabButton.MouseEnter:Connect(function()
+        if self._activeTab ~= tab then
+            tween(tabButton, TweenInfo.new(0.15), { BackgroundColor3 = Theme.ButtonHover })
+        end
+    end)
+
+    tabButton.MouseLeave:Connect(function()
+        if self._activeTab ~= tab then
+            tween(tabButton, TweenInfo.new(0.15), { BackgroundColor3 = Theme.Button })
+        end
+    end)
+
+    tabButton.MouseButton1Click:Connect(activate)
+
+    if not self._activeTab then
+        activate()
+    end
+
+    return tab
+end
+
+---------------------------------------------------------------------
+-- Tab methods: sections / controls
+---------------------------------------------------------------------
+
+function TabClass:CreateSection(title)
+    title = tostring(title or "")
+
+    local frame = Instance.new("Frame")
+    frame.Name = "Section_" .. title
+    frame.BackgroundColor3 = Theme.Background
+    frame.BackgroundTransparency = 1
+    frame.BorderSizePixel = 0
+    frame.Size = UDim2.new(1, 0, 0, 24)
+    frame.Parent = self._content
+
+    local label = Instance.new("TextLabel")
+    label.Name = "Title"
+    label.BackgroundTransparency = 1
+    label.Position = UDim2.new(0, 4, 0, 0)
+    label.Size = UDim2.new(1, -8, 1, 0)
+    label.Font = Enum.Font.GothamSemibold
+    label.TextSize = 14
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.TextColor3 = Theme.TextDim
+    label.Text = title
+    label.Parent = frame
+
+    return frame
+end
+
+function TabClass:CreateButton(opts)
+    opts = opts or {}
+    local name = tostring(opts.Name or "Button")
+    local description = opts.Description and tostring(opts.Description) or ""
+    local callback = typeof(opts.Callback) == "function" and opts.Callback or nil
+    local iconName = opts.Icon
+    local iconSource = opts.IconSource or opts.ImageSource or "Material"
+    local iconAsset = resolveIconAsset(iconName, iconSource)
+
+    local height = description ~= "" and 54 or 32
+
+    local frame = Instance.new("Frame")
+    frame.Name = "Button_" .. name
+    frame.BackgroundColor3 = Theme.Button
+    frame.BorderSizePixel = 0
+    frame.Size = UDim2.new(1, 0, 0, height)
+    frame.Parent = self._content
+    createRound(frame, 6)
+
+    local button = Instance.new("TextButton")
+    button.Name = "Hitbox"
+    button.BackgroundTransparency = 1
+    button.Size = UDim2.new(1, 0, 1, 0)
+    button.Font = Enum.Font.Gotham
+    button.Text = ""
+    button.Parent = frame
+
+    local iconOffset = 10
+
+    if iconAsset then
+        local iconImage = Instance.new("ImageLabel")
+        iconImage.Name = "Icon"
+        iconImage.BackgroundTransparency = 1
+        iconImage.Size = UDim2.new(0, 18, 0, 18)
+        iconImage.Position = UDim2.new(0, 10, 0, 6)
+        iconImage.Image = iconAsset
+        iconImage.ImageColor3 = Theme.TextDim
+        iconImage.Parent = frame
+
+        iconOffset = 10 + 18 + 6
+    end
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "Title"
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Position = UDim2.new(0, iconOffset, 0, 4)
+    titleLabel.Size = UDim2.new(1, -iconOffset - 10, 0, 18)
+    titleLabel.Font = Enum.Font.GothamSemibold
+    titleLabel.TextSize = 14
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextColor3 = Theme.Text
+    titleLabel.Text = name
+    titleLabel.Parent = frame
+
+    if description ~= "" then
+        local descLabel = Instance.new("TextLabel")
+        descLabel.Name = "Description"
+        descLabel.BackgroundTransparency = 1
+        descLabel.Position = UDim2.new(0, iconOffset, 0, 22)
+        descLabel.Size = UDim2.new(1, -iconOffset - 10, 0, 34)
+        descLabel.Font = Enum.Font.Gotham
+        descLabel.TextSize = 12
+        descLabel.TextXAlignment = Enum.TextXAlignment.Left
+        descLabel.TextYAlignment = Enum.TextYAlignment.Top
+        descLabel.TextWrapped = true
+        descLabel.TextColor3 = Theme.TextDim
+        descLabel.Text = description
+        descLabel.Parent = frame
+    end
+
+    button.MouseEnter:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.ButtonHover })
+    end)
+
+    button.MouseLeave:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.Button })
+    end)
+
+    button.MouseButton1Click:Connect(function()
+        if callback then
+            task.spawn(function()
+                local ok, err = pcall(callback)
+                if not ok then
+                    SorinCoreInterface:Notify({
+                        Title = name,
+                        Content = "Callback error: " .. tostring(err),
+                        Type = "error",
+                    })
+                end
+            end)
+        end
+    end)
+
+    return frame
+end
+
+function TabClass:CreateToggle(opts)
+    opts = opts or {}
+    local name = tostring(opts.Name or "Toggle")
+    local description = opts.Description and tostring(opts.Description) or ""
+    local callback = typeof(opts.Callback) == "function" and opts.Callback or nil
+    local state = opts.CurrentValue == true or opts.Default == true
+    local iconName = opts.Icon
+    local iconSource = opts.IconSource or opts.ImageSource or "Material"
+    local iconAsset = resolveIconAsset(iconName, iconSource)
+
+    local height = description ~= "" and 54 or 32
+
+    local frame = Instance.new("Frame")
+    frame.Name = "Toggle_" .. name
+    frame.BackgroundColor3 = Theme.Button
+    frame.BorderSizePixel = 0
+    frame.Size = UDim2.new(1, 0, 0, height)
+    frame.Parent = self._content
+    createRound(frame, 6)
+
+    local hitbox = Instance.new("TextButton")
+    hitbox.Name = "Hitbox"
+    hitbox.BackgroundTransparency = 1
+    hitbox.Size = UDim2.new(1, 0, 1, 0)
+    hitbox.Font = Enum.Font.Gotham
+    hitbox.Text = ""
+    hitbox.Parent = frame
+
+    local iconOffset = 10
+
+    if iconAsset then
+        local iconImage = Instance.new("ImageLabel")
+        iconImage.Name = "Icon"
+        iconImage.BackgroundTransparency = 1
+        iconImage.Size = UDim2.new(0, 18, 0, 18)
+        iconImage.Position = UDim2.new(0, 10, 0, 6)
+        iconImage.Image = iconAsset
+        iconImage.ImageColor3 = Theme.TextDim
+        iconImage.Parent = frame
+
+        iconOffset = 10 + 18 + 6
+    end
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "Title"
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Position = UDim2.new(0, iconOffset, 0, 4)
+    titleLabel.Size = UDim2.new(1, -80 - iconOffset + 10, 0, 18)
+    titleLabel.Font = Enum.Font.GothamSemibold
+    titleLabel.TextSize = 14
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextColor3 = Theme.Text
+    titleLabel.Text = name
+    titleLabel.Parent = frame
+
+    if description ~= "" then
+        local descLabel = Instance.new("TextLabel")
+        descLabel.Name = "Description"
+        descLabel.BackgroundTransparency = 1
+        descLabel.Position = UDim2.new(0, iconOffset, 0, 22)
+        descLabel.Size = UDim2.new(1, -80 - iconOffset + 10, 0, 34)
+        descLabel.Font = Enum.Font.Gotham
+        descLabel.TextSize = 12
+        descLabel.TextXAlignment = Enum.TextXAlignment.Left
+        descLabel.TextYAlignment = Enum.TextYAlignment.Top
+        descLabel.TextWrapped = true
+        descLabel.TextColor3 = Theme.TextDim
+        descLabel.Text = description
+        descLabel.Parent = frame
+    end
+
+    local toggleFrame = Instance.new("Frame")
+    toggleFrame.Name = "Switch"
+    toggleFrame.BackgroundColor3 = Theme.ToggleOff
+    toggleFrame.BorderSizePixel = 0
+    toggleFrame.Size = UDim2.new(0, 40, 0, 18)
+    toggleFrame.AnchorPoint = Vector2.new(1, 0.5)
+    toggleFrame.Position = UDim2.new(1, -10, 0.5, 0)
+    toggleFrame.Parent = frame
+    createRound(toggleFrame, 9)
+
+    local knob = Instance.new("Frame")
+    knob.Name = "Knob"
+    knob.BackgroundColor3 = Color3.new(1, 1, 1)
+    knob.BorderSizePixel = 0
+    knob.Size = UDim2.new(0, 14, 0, 14)
+    knob.AnchorPoint = Vector2.new(0.5, 0.5)
+    knob.Position = UDim2.new(0, 9, 0.5, 0)
+    knob.Parent = toggleFrame
+    createRound(knob, 7)
+
+    local function applyState(instant)
+        local bgColor = state and Theme.ToggleOn or Theme.ToggleOff
+        local xOffset = state and 31 or 9
+        if instant then
+            toggleFrame.BackgroundColor3 = bgColor
+            knob.Position = UDim2.new(0, xOffset, 0.5, 0)
+        else
+            tween(toggleFrame, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                BackgroundColor3 = bgColor,
+            })
+            tween(knob, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+                Position = UDim2.new(0, xOffset, 0.5, 0),
+            })
+        end
+    end
+
+    applyState(true)
+
+    local function setState(newState, fromUser)
+        if state == newState then
+            return
+        end
+        state = newState and true or false
+        applyState(false)
+        if callback and fromUser then
+            task.spawn(function()
+                local ok, err = pcall(callback, state)
+                if not ok then
+                    SorinCoreInterface:Notify({
+                        Title = name,
+                        Content = "Toggle error: " .. tostring(err),
+                        Type = "error",
+                    })
+                end
+            end)
+        end
+    end
+
+    hitbox.MouseEnter:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.ButtonHover })
+    end)
+
+    hitbox.MouseLeave:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.Button })
+    end)
+
+    hitbox.MouseButton1Click:Connect(function()
+        setState(not state, true)
+    end)
+
+    return {
+        Frame = frame,
+        Set = function(_, options)
+            if options and typeof(options.CurrentValue) == "boolean" then
+                setState(options.CurrentValue, false)
+            end
+        end,
+        Get = function()
+            return state
+        end,
+    }
+end
+
+function TabClass:CreateSlider(opts)
+    opts = opts or {}
+    local name = tostring(opts.Name or "Slider")
+    local description = opts.Description and tostring(opts.Description) or ""
+    local callback = typeof(opts.Callback) == "function" and opts.Callback or nil
+
+    local iconName = opts.Icon
+    local iconSource = opts.IconSource or opts.ImageSource or "Material"
+    local iconAsset = resolveIconAsset(iconName, iconSource)
+
+    local min = tonumber(opts.Min) or 0
+    local max = tonumber(opts.Max) or 100
+    if max <= min then
+        max = min + 1
+    end
+    local step = tonumber(opts.Step) or 1
+    if step <= 0 then
+        step = 1
+    end
+
+    local default = opts.CurrentValue or opts.Default or min
+
+    local function clampToRange(v)
+        v = tonumber(v) or min
+        if v < min then
+            v = min
+        elseif v > max then
+            v = max
+        end
+        local scaled = (v - min) / step
+        local rounded = math.floor(scaled + 0.5)
+        return min + rounded * step
+    end
+
+    local value = clampToRange(default)
+
+    local height = description ~= "" and 64 or 48
+
+    local frame = Instance.new("Frame")
+    frame.Name = "Slider_" .. name
+    frame.BackgroundColor3 = Theme.Button
+    frame.BorderSizePixel = 0
+    frame.Size = UDim2.new(1, 0, 0, height)
+    frame.Parent = self._content
+    createRound(frame, 6)
+
+    local hitbox = Instance.new("TextButton")
+    hitbox.Name = "Hitbox"
+    hitbox.BackgroundTransparency = 1
+    hitbox.Size = UDim2.new(1, 0, 1, 0)
+    hitbox.Font = Enum.Font.Gotham
+    hitbox.Text = ""
+    hitbox.Parent = frame
+
+    local iconOffset = 10
+
+    if iconAsset then
+        local iconImage = Instance.new("ImageLabel")
+        iconImage.Name = "Icon"
+        iconImage.BackgroundTransparency = 1
+        iconImage.Size = UDim2.new(0, 18, 0, 18)
+        iconImage.Position = UDim2.new(0, 10, 0, 6)
+        iconImage.Image = iconAsset
+        iconImage.ImageColor3 = Theme.TextDim
+        iconImage.Parent = frame
+
+        iconOffset = 10 + 18 + 6
+    end
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "Title"
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Position = UDim2.new(0, iconOffset, 0, 4)
+    titleLabel.Size = UDim2.new(1, -iconOffset - 50, 0, 18)
+    titleLabel.Font = Enum.Font.GothamSemibold
+    titleLabel.TextSize = 14
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextColor3 = Theme.Text
+    titleLabel.Text = name
+    titleLabel.Parent = frame
+
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Name = "Value"
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.Position = UDim2.new(1, -46, 0, 4)
+    valueLabel.Size = UDim2.new(0, 36, 0, 18)
+    valueLabel.Font = Enum.Font.Gotham
+    valueLabel.TextSize = 13
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    valueLabel.TextColor3 = Theme.TextDim
+    valueLabel.Text = tostring(value)
+    valueLabel.Parent = frame
+
+    if description ~= "" then
+        local descLabel = Instance.new("TextLabel")
+        descLabel.Name = "Description"
+        descLabel.BackgroundTransparency = 1
+        descLabel.Position = UDim2.new(0, iconOffset, 0, 22)
+        descLabel.Size = UDim2.new(1, -iconOffset - 10, 0, 34)
+        descLabel.Font = Enum.Font.Gotham
+        descLabel.TextSize = 12
+        descLabel.TextXAlignment = Enum.TextXAlignment.Left
+        descLabel.TextYAlignment = Enum.TextYAlignment.Top
+        descLabel.TextWrapped = true
+        descLabel.TextColor3 = Theme.TextDim
+        descLabel.Text = description
+        descLabel.Parent = frame
+    end
+
+    local bar = Instance.new("Frame")
+    bar.Name = "Bar"
+    bar.BackgroundColor3 = Theme.Section
+    bar.BorderSizePixel = 0
+    bar.Size = UDim2.new(1, -20, 0, 6)
+    bar.AnchorPoint = Vector2.new(0, 1)
+    bar.Position = UDim2.new(0, 10, 1, -8)
+    bar.Parent = frame
+    createRound(bar, 3)
+
+    local fill = Instance.new("Frame")
+    fill.Name = "Fill"
+    fill.BackgroundColor3 = Theme.Accent
+    fill.BorderSizePixel = 0
+    fill.Size = UDim2.new(0, 0, 1, 0)
+    fill.Parent = bar
+    createRound(fill, 3)
+
+    local knob = Instance.new("Frame")
+    knob.Name = "Knob"
+    knob.BackgroundColor3 = Color3.new(1, 1, 1)
+    knob.BorderSizePixel = 0
+    knob.Size = UDim2.new(0, 12, 0, 12)
+    knob.AnchorPoint = Vector2.new(0.5, 0.5)
+    knob.Position = UDim2.new(0, 0, 0.5, 0)
+    knob.Parent = bar
+    createRound(knob, 6)
+
+    local dragging = false
+
+    local function applyVisual()
+        local range = max - min
+        local t = range > 0 and ((value - min) / range) or 0
+        t = math.clamp(t, 0, 1)
+
+        local barWidth = bar.AbsoluteSize.X
+        local knobX = t * barWidth
+
+        valueLabel.Text = tostring(value)
+
+        fill.Size = UDim2.new(t, 0, 1, 0)
+        knob.Position = UDim2.new(0, knobX, 0.5, 0)
+    end
+
+    applyVisual()
+
+    bar:GetPropertyChangedSignal("AbsoluteSize"):Connect(applyVisual)
+
+    local function setValue(newValue, fromUser)
+        local clamped = clampToRange(newValue)
+        if clamped == value then
+            return
+        end
+        value = clamped
+        applyVisual()
+
+        if callback and fromUser then
+            task.spawn(function()
+                local ok, err = pcall(callback, value)
+                if not ok then
+                    SorinCoreInterface:Notify({
+                        Title = name,
+                        Content = "Slider error: " .. tostring(err),
+                        Type = "error",
+                    })
+                end
+            end)
+        end
+    end
+
+    local function updateFromInput(inputPosition)
+        local barPos = bar.AbsolutePosition.X
+        local barSize = bar.AbsoluteSize.X
+        if barSize <= 0 then
+            return
+        end
+
+        local relative = (inputPosition - barPos) / barSize
+        local range = max - min
+        local rawValue = min + range * math.clamp(relative, 0, 1)
+        setValue(rawValue, true)
+    end
+
+    local function beginDrag(input)
+        dragging = true
+        updateFromInput(input.Position.X)
+    end
+
+    local function endDrag(_input)
+        dragging = false
+    end
+
+    bar.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            beginDrag(input)
+        end
+    end)
+
+    knob.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            beginDrag(input)
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if not dragging then
+            return
+        end
+        if input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch then
+            updateFromInput(input.Position.X)
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+            or input.UserInputType == Enum.UserInputType.Touch then
+            endDrag(input)
+        end
+    end)
+
+    hitbox.MouseEnter:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.ButtonHover })
+    end)
+
+    hitbox.MouseLeave:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.Button })
+    end)
+
+    return {
+        Frame = frame,
+        Set = function(_, options)
+            if options and options.CurrentValue ~= nil then
+                setValue(options.CurrentValue, false)
+            end
+        end,
+        Get = function()
+            return value
+        end,
+    }
+end
+
+function TabClass:CreateDropdown(opts)
+    opts = opts or {}
+    local name = tostring(opts.Name or "Dropdown")
+    local description = opts.Description and tostring(opts.Description) or ""
+    local callback = typeof(opts.Callback) == "function" and opts.Callback or nil
+
+    local iconName = opts.Icon
+    local iconSource = opts.IconSource or opts.ImageSource or "Material"
+    local iconAsset = resolveIconAsset(iconName, iconSource)
+
+    local rawOptions = {}
+    if typeof(opts.Options) == "table" then
+        for _, v in ipairs(opts.Options) do
+            table.insert(rawOptions, tostring(v))
+        end
+    end
+
+    local options = rawOptions
+    local current = nil
+
+    local function findIndex(value)
+        if value == nil then
+            return nil
+        end
+        for i, v in ipairs(options) do
+            if v == value then
+                return i
+            end
+        end
+        return nil
+    end
+
+    local function pickInitial()
+        local default = opts.CurrentValue or opts.Default
+        if default then
+            default = tostring(default)
+            local idx = findIndex(default)
+            if idx then
+                return default
+            end
+        end
+        return options[1]
+    end
+
+    current = pickInitial()
+
+    local height = description ~= "" and 54 or 36
+
+    local frame = Instance.new("Frame")
+    frame.Name = "Dropdown_" .. name
+    frame.BackgroundColor3 = Theme.Button
+    frame.BorderSizePixel = 0
+    frame.Size = UDim2.new(1, 0, 0, height)
+    frame.Parent = self._content
+    createRound(frame, 6)
+
+    local hitbox = Instance.new("TextButton")
+    hitbox.Name = "Hitbox"
+    hitbox.BackgroundTransparency = 1
+    hitbox.Size = UDim2.new(1, 0, 1, 0)
+    hitbox.Font = Enum.Font.Gotham
+    hitbox.Text = ""
+    hitbox.Parent = frame
+
+    local iconOffset = 10
+
+    if iconAsset then
+        local iconImage = Instance.new("ImageLabel")
+        iconImage.Name = "Icon"
+        iconImage.BackgroundTransparency = 1
+        iconImage.Size = UDim2.new(0, 18, 0, 18)
+        iconImage.Position = UDim2.new(0, 10, 0, 6)
+        iconImage.Image = iconAsset
+        iconImage.ImageColor3 = Theme.TextDim
+        iconImage.Parent = frame
+
+        iconOffset = 10 + 18 + 6
+    end
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "Title"
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Position = UDim2.new(0, iconOffset, 0, 4)
+    titleLabel.Size = UDim2.new(1, -iconOffset - 80, 0, 18)
+    titleLabel.Font = Enum.Font.GothamSemibold
+    titleLabel.TextSize = 14
+    titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+    titleLabel.TextColor3 = Theme.Text
+    titleLabel.Text = name
+    titleLabel.Parent = frame
+
+    if description ~= "" then
+        local descLabel = Instance.new("TextLabel")
+        descLabel.Name = "Description"
+        descLabel.BackgroundTransparency = 1
+        descLabel.Position = UDim2.new(0, iconOffset, 0, 22)
+        descLabel.Size = UDim2.new(1, -iconOffset - 10, 0, 34)
+        descLabel.Font = Enum.Font.Gotham
+        descLabel.TextSize = 12
+        descLabel.TextXAlignment = Enum.TextXAlignment.Left
+        descLabel.TextYAlignment = Enum.TextYAlignment.Top
+        descLabel.TextWrapped = true
+        descLabel.TextColor3 = Theme.TextDim
+        descLabel.Text = description
+        descLabel.Parent = frame
+    end
+
+    local valueLabel = Instance.new("TextLabel")
+    valueLabel.Name = "Value"
+    valueLabel.BackgroundTransparency = 1
+    valueLabel.Position = UDim2.new(1, -70, 0, 4)
+    valueLabel.Size = UDim2.new(0, 60, 0, 18)
+    valueLabel.Font = Enum.Font.Gotham
+    valueLabel.TextSize = 13
+    valueLabel.TextXAlignment = Enum.TextXAlignment.Right
+    valueLabel.TextColor3 = Theme.TextDim
+    valueLabel.Text = current or ""
+    valueLabel.Parent = frame
+
+    local arrowLabel = Instance.new("TextLabel")
+    arrowLabel.Name = "Arrow"
+    arrowLabel.BackgroundTransparency = 1
+    arrowLabel.Position = UDim2.new(1, -12, 0, 4)
+    arrowLabel.Size = UDim2.new(0, 10, 0, 18)
+    arrowLabel.Font = Enum.Font.GothamSemibold
+    arrowLabel.TextSize = 13
+    arrowLabel.TextColor3 = Theme.TextDim
+    arrowLabel.Text = "▼"
+    arrowLabel.Parent = frame
+
+    local function applyDisplay()
+        valueLabel.Text = current or ""
+    end
+
+    local function setValue(newValue, fromUser)
+        if newValue ~= nil then
+            newValue = tostring(newValue)
+        end
+
+        if newValue ~= nil and not findIndex(newValue) then
+            -- value not in options; ignore
+            return
+        end
+
+        current = newValue
+        applyDisplay()
+
+        if callback and fromUser and current ~= nil then
+            task.spawn(function()
+                local ok, err = pcall(callback, current)
+                if not ok then
+                    SorinCoreInterface:Notify({
+                        Title = name,
+                        Content = "Dropdown error: " .. tostring(err),
+                        Type = "error",
+                    })
+                end
+            end)
+        end
+    end
+
+    -- simple dropdown popup instead of cycling values
+    local menuFrame
+    local function closeMenu()
+        if menuFrame then
+            menuFrame:Destroy()
+            menuFrame = nil
+        end
+    end
+
+    local function openMenu()
+        closeMenu()
+
+        local gui = ensureScreenGui()
+        if not gui then
+            return
+        end
+
+        local absPos = frame.AbsolutePosition
+        local absSize = frame.AbsoluteSize
+        local itemHeight = 24
+        local count = math.max(1, #options)
+        local height = itemHeight * count + 8
+
+        menuFrame = Instance.new("Frame")
+        menuFrame.Name = "DropdownMenu_" .. name
+        menuFrame.BackgroundColor3 = Theme.Section
+        menuFrame.BorderSizePixel = 0
+        menuFrame.Size = UDim2.fromOffset(absSize.X, height)
+        menuFrame.Position = UDim2.fromOffset(absPos.X, absPos.Y + absSize.Y + 2)
+        menuFrame.ZIndex = 60
+        menuFrame.Parent = gui
+        createRound(menuFrame, 6)
+
+        local layout = Instance.new("UIListLayout")
+        layout.FillDirection = Enum.FillDirection.Vertical
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
+        layout.Padding = UDim.new(0, 4)
+        layout.Parent = menuFrame
+
+        local padding = Instance.new("UIPadding")
+        padding.PaddingTop = UDim.new(0, 4)
+        padding.PaddingBottom = UDim.new(0, 4)
+        padding.PaddingLeft = UDim.new(0, 4)
+        padding.PaddingRight = UDim.new(0, 4)
+        padding.Parent = menuFrame
+
+        for _, opt in ipairs(options) do
+            local btn = Instance.new("TextButton")
+            btn.Name = "Opt_" .. tostring(opt)
+            btn.BackgroundColor3 = Theme.Button
+            btn.BorderSizePixel = 0
+            btn.Size = UDim2.new(1, 0, 0, itemHeight)
+            btn.AutoButtonColor = false
+            btn.Font = Enum.Font.Gotham
+            btn.TextSize = 12
+            btn.TextColor3 = Theme.Text
+            btn.Text = tostring(opt)
+            btn.ZIndex = 61
+            btn.Parent = menuFrame
+            createRound(btn, 4)
+
+            btn.MouseEnter:Connect(function()
+                tween(btn, TweenInfo.new(0.1), { BackgroundColor3 = Theme.ButtonHover })
+            end)
+            btn.MouseLeave:Connect(function()
+                tween(btn, TweenInfo.new(0.1), { BackgroundColor3 = Theme.Button })
+            end)
+            btn.MouseButton1Click:Connect(function()
+                setValue(opt, true)
+                closeMenu()
+            end)
+        end
+
+        frame.AncestryChanged:Connect(function(_, parent)
+            if not parent then
+                closeMenu()
+            end
+        end)
+    end
+
+    hitbox.MouseEnter:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.ButtonHover })
+    end)
+
+    hitbox.MouseLeave:Connect(function()
+        tween(frame, TweenInfo.new(0.12), { BackgroundColor3 = Theme.Button })
+    end)
+
+    hitbox.MouseButton1Click:Connect(function()
+        if menuFrame then
+            closeMenu()
+        else
+            openMenu()
+        end
+    end)
+
+    applyDisplay()
+
+    return {
+        Frame = frame,
+        Set = function(_, optionsUpdate)
+            if not optionsUpdate then
+                return
+            end
+
+            closeMenu()
+
+            local newOptions = options
+            local newCurrent = current
+
+            if typeof(optionsUpdate.Options) == "table" then
+                newOptions = {}
+                for _, v in ipairs(optionsUpdate.Options) do
+                    table.insert(newOptions, tostring(v))
+                end
+            end
+
+            if optionsUpdate.CurrentValue ~= nil then
+                newCurrent = tostring(optionsUpdate.CurrentValue)
+            end
+
+            options = newOptions
+
+            if newCurrent ~= nil and findIndex(newCurrent) then
+                current = newCurrent
+            else
+                current = options[1]
+            end
+
+            applyDisplay()
+        end,
+        Get = function()
+            return current
+        end,
+    }
+end
+
+---------------------------------------------------------------------
+-- Public export
+---------------------------------------------------------------------
+
+return setmetatable(SorinCoreInterface, SorinCoreInterface)
