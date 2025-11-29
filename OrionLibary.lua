@@ -45,8 +45,8 @@ local OrionLib = {
 		Default = {
 			Main = Color3.fromRGB(20, 20, 20), -- Main Leiste
 			Second = Color3.fromRGB(30, 33, 30), -- Tab Leiste, Buttons
-			Stroke = Color3.fromRGB(90, 0, 120), -- Umrandungen
-			Divider = Color3.fromRGB(32, 0, 29), -- Mainpart
+			Stroke = Color3.fromRGB(70, 60, 85), -- Umrandungen (leichtes Lila, deutlich grauer)
+			Divider = Color3.fromRGB(42, 38, 45), -- Mainpart, nur ein Hauch Lila
 			Text = Color3.fromRGB(240, 240, 240),
 			TextDark = Color3.fromRGB(150, 150, 150)
 		}
@@ -507,6 +507,9 @@ function OrionLib:MakeWindow(WindowConfig)
 	WindowConfig.IntroText = WindowConfig.IntroText or "Loading SorinHub"
 	WindowConfig.CloseCallback = WindowConfig.CloseCallback or function() end
 	WindowConfig.ShowIcon = WindowConfig.ShowIcon or false
+	if WindowConfig.ShowLogo == nil then
+		WindowConfig.ShowLogo = true
+	 end
 	WindowConfig.Icon = WindowConfig.Icon or "rbxassetid://8834748103"
 	WindowConfig.IntroIcon = WindowConfig.IntroIcon or "rbxassetid://122633020844347"
 	OrionLib.Folder = WindowConfig.ConfigFolder
@@ -655,16 +658,15 @@ function OrionLib:MakeWindow(WindowConfig)
 		WindowStuff
 	}), "Main")
 
-	-- ===== FIX: SorinLogo jetzt NACH MainWindow erstellen =====
-	local SorinLogo = SetProps(MakeElement("Image", "rbxassetid://122633020844347"), {
-		Size = UDim2.new(0, 20, 0, 20),
-		Position = UDim2.new(0, 5, 0, 15),
-		BackgroundTransparency = 1
-	})
-	SorinLogo.Parent = MainWindow.TopBar
-	-- Titel etwas nach rechts, damit Platz fürs Logo ist
-	WindowName.Position = UDim2.new(0, 30, 0, -24)
-	-- ==========================================================
+	if WindowConfig.ShowLogo ~= false then
+		local SorinLogo = SetProps(MakeElement("Image", "rbxassetid://122633020844347"), {
+			Size = UDim2.new(0, 20, 0, 20),
+			Position = UDim2.new(0, 5, 0, 15),
+			BackgroundTransparency = 1
+		})
+		SorinLogo.Parent = MainWindow.TopBar
+		WindowName.Position = UDim2.new(0, 30, 0, -24)
+	end
 
 	if WindowConfig.ShowIcon then
 		WindowName.Position = UDim2.new(0, 50, 0, -24)
