@@ -511,7 +511,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		WindowConfig.ShowLogo = true
 	 end
 	WindowConfig.Icon = WindowConfig.Icon or "rbxassetid://8834748103"
-	WindowConfig.IntroIcon = WindowConfig.IntroIcon or "rbxassetid://122633020844347"
+	WindowConfig.IntroIcon = WindowConfig.IntroIcon or "rbxassetid://84637769762084"
 	OrionLib.Folder = WindowConfig.ConfigFolder
 	OrionLib.SaveCfg = WindowConfig.SaveConfig
 
@@ -659,7 +659,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	}), "Main")
 
 	if WindowConfig.ShowLogo ~= false then
-		local SorinLogo = SetProps(MakeElement("Image", "rbxassetid://122633020844347"), {
+		local SorinLogo = SetProps(MakeElement("Image", "rbxassetid://84637769762084"), {
 			Size = UDim2.new(0, 20, 0, 20),
 			Position = UDim2.new(0, 5, 0, 15),
 			BackgroundTransparency = 1
